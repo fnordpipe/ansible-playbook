@@ -1,0 +1,8 @@
+---
+# domU setup
+
+- name: loop domU groups
+  include: domU.yml
+  with_items: "{{ groups[dom0Item] }}"
+  loop_control:
+    loop_var: domUItem

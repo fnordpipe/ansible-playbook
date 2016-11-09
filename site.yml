@@ -1,0 +1,18 @@
+---
+# global ansible role assignment
+
+# common configuration of all hosts
+- name: assign common role
+  hosts: all
+  remote_user: root
+
+  roles:
+  - common
+
+# assign dom0 role
+- name: assign dom0 role
+  hosts: dom0
+  remote_user: root
+
+  roles:
+  - dom0

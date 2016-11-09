@@ -1,0 +1,18 @@
+kernel = '/boot/kernel'
+memory = 4096
+maxmem = 4096
+vcpus = 4
+name = '{{ domUItem.split('.')[0] }}'
+
+vif = [
+  'mac={{ domUMac }}, bridge={{ genericConfig.domUBridge }}'
+]
+
+disk = [
+  'phy:/dev/mapper/{{ domUItem.split('.')[1] }}-{{ domUItem.split('.')[0] }},xvda,w'
+]
+root = '/dev/xvda'
+
+on_poweroff = 'preserve'
+on_reboot = 'restart'
+on_crash = 'restart'
