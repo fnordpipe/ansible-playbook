@@ -9,6 +9,14 @@
   roles:
   - common
 
+# common configuration of gentoo hosts
+- name: assign gentoo role
+  hosts: gentoo
+  remote_user: root
+
+  roles:
+  - gentoo
+
 # assign dom0 role
 - name: assign dom0 role
   hosts: dom0

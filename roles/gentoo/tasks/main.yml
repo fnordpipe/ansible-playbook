@@ -1,0 +1,29 @@
+---
+# gentoo common config
+
+- name: set hostname
+  template:
+    src: etc/conf.d/hostname.j2
+    dest: /etc/conf.d/hostname
+    owner: root
+    group: root
+    mode: 0644
+
+- name: configure portage repositories
+  copy:
+    src: etc/portage/repos.conf/overlay.conf
+    dest: /etc/portage/repos.conf/overlay.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: update portage
+  portage:
+    sync: yes
+
+- name: set portage profile
+  file:
+    src: /usr/local/fnordpipe-overlay/profiles/amd64/headless
+    dest: /etc/portage/make.profile
+    force: yes
+    state: link
