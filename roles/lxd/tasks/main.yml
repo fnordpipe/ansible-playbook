@@ -1,0 +1,46 @@
+---
+# dom0 setup
+
+- name: include generic config
+  include_vars:
+    file: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/config.yml"
+    name: genericConfig
+  failed_when: False
+
+- name: install lxc package
+  portage:
+    package: app-emulation/lxc
+    quiet: yes
+    getbinpkg: yes
+    state: present
+
+- name: install python2-lxc package
+  portage:
+    package: dev-python/python2-lxc
+    quiet: yes
+    getbinpkg: yes
+    state: present
+
+- name: create /etc/lxc/config
+  file:
+    dest: /etc/lxc/config
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: create /var/lib/lxc
+  file:
+    dest: /var/lib/lxc
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: loop lxc group
+  include: lxc.yml
+  with_items: "{{ groups[lxdGroup] }}"
+  loop_control:
+    loop_var: lxcItem
+  vars:
+    lxdGroup: "lxd-{{ inventory_hostname }}"

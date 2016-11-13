@@ -9,7 +9,7 @@
     group: root
     mode: 0600
   vars:
-    domUMac: "{{ genericConfig.macprefix }}:{{ domUItem | hash('md5') | regex_replace('^([0-9a-f]{2}).*([0-9a-f]{2})$', '\\1:\\2') }}"
+    domUMac: "{{ genericConfig.macprefix | default('de:ad:be:ef') }}:{{ domUItem | hash('md5') | regex_replace('^([0-9a-f]{2}).*([0-9a-f]{2})$', '\\1:\\2') }}"
 
 - name: create logical volume of {{ domUItem }}
   lvol:

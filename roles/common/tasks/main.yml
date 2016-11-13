@@ -18,21 +18,3 @@
     mode: 0600
   vars:
     envAnsibleVault: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/roles/common"
-
-- name: extract gentoo overlay
-  unarchive:
-    remote_src: yes
-    src: http://distfiles.fnordpipe.org/overlay/snapshots/portage-latest.tar.bz2
-    dest: /usr/local
-    creates: /usr/local/fnordpipe-overlay
-    owner: portage
-    group: portage
-    mode: 0444
-  when: gentooOverlay is defined
-
-- name: enable gentoo overlay
-  file:
-    src: /usr/local/fnordpipe-overlay/metadata/repos.conf
-    dest: /etc/portage/repos.conf/overlay.conf
-    state: link
-  when: gentooOverlay is defined

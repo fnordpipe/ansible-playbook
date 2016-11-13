@@ -1,9 +1,18 @@
 ---
 # dom0 setup
 
-- include_vars:
+- name: include generic config
+  include_vars:
     file: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/config.yml"
     name: genericConfig
+  failed_when: False
+
+- name: install xen package
+  portage:
+    package: app-emulation/xen
+    quiet: yes
+    getbinpkg: yes
+    state: present
 
 - name: create /etc/xen/config
   file:
@@ -13,8 +22,18 @@
     mode: 0750
     state: directory
 
+- name: create /etc/xen/.ansible
+  file:
+    dest: /etc/xen/.ansible
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
 - name: loop dom0 group
-  include: domU/main.yml
-  with_items: "{{ groups['dom0'] }}"
+  include: domU.yml
+  with_items: "{{ groups[dom0Group] }}"
   loop_control:
-    loop_var: dom0Item
+    loop_var: domUItem
+  vars:
+    dom0Group: "dom0-{{ inventory_hostname }}"

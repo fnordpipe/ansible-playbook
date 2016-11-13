@@ -1,12 +1,16 @@
 export PLAYBOOK_VAULT_DIR?=../vault
-export PLAYBOOK_INVENTORY_DIR?=../inventory
 
 check:
 	# invoke dry-run
 
-	ansible-playbook -i ${PLAYBOOK_INVENTORY_DIR}/production.ini ./site.yml --check
+	ansible-playbook -i ${PLAYBOOK_VAULT_DIR}/production.ini ./site.yml --check
 
-run:
+lxd:
+	# run only lcd's
+
+	ansible-playbook -i ${PLAYBOOK_VAULT_DIR}/production.ini ./site.yml --limit lxd
+
+dom0:
 	# invoke real-run
 
-	ansible-playbook -i ${PLAYBOOK_INVENTORY_DIR}/production.ini ./site.yml
+	ansible-playbook -i ${PLAYBOOK_VAULT_DIR}/production.ini ./site.yml --limit dom0

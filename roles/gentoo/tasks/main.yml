@@ -20,6 +20,15 @@
 - name: update portage
   portage:
     sync: yes
+  when: "'lxc' not in group_names"
+
+- name: create /usr/portage/distfiles and /usr/portage/packages
+  file:
+    dest: "{{ item }}"
+    state: directory
+  with_items:
+    - /usr/portage/distfiles
+    - /usr/portage/packages
 
 - name: set portage profile
   file:
