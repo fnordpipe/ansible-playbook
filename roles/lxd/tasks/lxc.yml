@@ -8,8 +8,8 @@
 
 - name: copy lxc config of {{ lxcItem }}
   template:
-    src: var/lib/lxc/config.j2
-    dest: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/config"
+    src: etc/lxc/gentoo-overlay.config.j2
+    dest: "/etc/lxc/config/{{ lxcItem.split('.')[0] }}.config"
     owner: root
     group: root
     mode: 0600
@@ -17,7 +17,7 @@
 - name: create container {{ lxcItem }}
   lxc_container:
     name: "{{ lxcItem.split('.')[0] }}"
-    config: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/config"
+    config: "/etc/lxc/config/{{ lxcItem.split('.')[0] }}.config"
     directory: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/rootfs"
     container_command: /sbin/init
     container_log: True
@@ -37,3 +37,16 @@
     dest: "/etc/runlevels/default/lxc.{{ lxcItem.split('.')[0] }}"
     force: True
     state: link
+
+- name: check config of {{ lxcItem }}
+  lineinfile:
+    dest: /var/lib/lxc/{{ lxcItem.split('.')[0] }}/config
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  vars:
+    lxcMac: "{{ genericConfig['macprefix'] | default('de:ad:be:ef') }}:{{ lxcItem | hash('md5') | regex_replace('^([0-9a-f]{2}).*([0-9a-f]{2})$', '\\1:\\2') }}"
+  with_items:
+    - { regex: '^lxc.network.hwaddr =.*', line: "lxc.network.hwaddr = {{ lxcMac }}" }
+    - { regex: '^lxc.network.link =.*', line: "lxc.network.link = {{ hostvars[lxcItem]['lxcConfig']['bridge'] | default('br0') }}" }
+    - { regex: '^lxc.utsname =.*', line: "lxc.utsname = {{ lxcItem.split('.')[0] }}" }
+    - { regex: '^lxc.rootfs =.*', line: "lxc.rootfs = /var/lib/lxc/{{ lxcItem.split('.')[0]}}/rootfs" }

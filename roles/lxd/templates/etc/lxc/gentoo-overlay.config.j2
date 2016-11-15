@@ -11,9 +11,6 @@ lxc.arch = amd64
 lxc.utsname = {{ lxcItem.split('.')[0] }}
 lxc.tty = 1
 
-lxc.rootfs = /var/lib/lxc/{{ lxcItem.split('.')[0] }}/rootfs
-lxc.rootfs.backend = dir
-
 lxc.mount.entry=/usr/portage usr/portage none ro,bind,create=dir 0 0
 lxc.mount.entry=/usr/local/fnordpipe-overlay usr/local/fnordpipe-overlay none ro,bind,create=dir 0 0
 lxc.mount.entry=/usr/portage/distfiles usr/portage/distfiles none rw,bind,create=dir 0 0
