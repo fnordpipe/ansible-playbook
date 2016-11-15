@@ -1,42 +1,8 @@
 ---
 # global ansible role assignment
 
-# common configuration of all hosts
-- name: assign common role
-  hosts: all
-  remote_user: root
-
-  roles:
-  - common
-
-# common configuration of gentoo hosts
-- name: assign gentoo role
-  hosts: gentoo
-  remote_user: root
-
-  roles:
-  - gentoo
-
-# assign dom0 role
-- name: assign dom0 role
-  hosts: dom0
-  remote_user: root
-
-  roles:
-  - dom0
-
-# assign lxd role
-- name: assign lxd role
-  hosts: lxd
-  remote_user: root
-
-  roles:
-  - lxd
-
-# assign dhcpd role
-- name: assign dhcpd role
-  hosts: dhcpd
-  remote_user: root
-
-  roles:
-  - dhcpd
+- include: common.yml
+- include: gentoo.yml
+- include: dom0.yml
+- include: lxd.yml
+- include: dhcpd.yml

@@ -1,0 +1,8 @@
+---
+# common configuration of all hosts
+- name: assign common role
+  hosts: all
+  remote_user: root
+
+  roles:
+  - common

@@ -1,0 +1,8 @@
+---
+# assign dhcpd role
+- name: assign dhcpd role
+  hosts: dhcpd
+  remote_user: root
+
+  roles:
+  - dhcpd
