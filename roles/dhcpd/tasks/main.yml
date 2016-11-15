@@ -12,7 +12,7 @@
   lineinfile:
     dest: /etc/conf.d/dhcpd
     regexp: '(# )?DHCPD_IFACE=".*"'
-    line: DHCPD_IFACE="{{ ansible_default_ipv4['interface'] }}"
+    line: DHCPD_IFACE="{{ dhcpConfig['interface'] }}"
 
 - name: update dhcpd config
   template:

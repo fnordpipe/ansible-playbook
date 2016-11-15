@@ -11,7 +11,7 @@
 
 - name: update authorized_keys
   copy:
-    content: "{{ sshPubKey }}"
+    content: "{{ genericConfig['sshPubKey'] }}"
     dest: /root/.ssh/authorized_keys
     owner: root
     group: root
