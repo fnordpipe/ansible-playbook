@@ -1,12 +1,6 @@
 ---
 # dom0 setup
 
-- name: include generic config
-  include_vars:
-    file: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/config.yml"
-    name: genericConfig
-  failed_when: False
-
 - name: install lxc package
   portage:
     package: app-emulation/lxc
@@ -20,14 +14,6 @@
     quiet: yes
     getbinpkg: yes
     state: present
-
-- name: create /etc/lxc/config
-  file:
-    dest: /etc/lxc/config
-    owner: root
-    group: root
-    mode: 0750
-    state: directory
 
 - name: create /var/lib/lxc
   file:

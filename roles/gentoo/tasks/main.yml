@@ -9,6 +9,11 @@
     group: root
     mode: 0644
 
+- name: create /etc/portage/repos.conf
+  file:
+    dest: /etc/portage/repos.conf
+    state: directory
+
 - name: configure portage repositories
   copy:
     src: etc/portage/repos.conf/overlay.conf

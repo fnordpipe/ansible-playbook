@@ -1,36 +1,31 @@
 ---
 # comment
 
-- name: include config of {{ lxcItem }}
-  include_vars: 
-    file: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/{{ lxcItem }}/lxd.yml"
-    name: lxcConfig
-  failed_when: False
-
-- name: copy lxc config of {{ lxcItem }}
-  template:
-    src: etc/lxc/config/lxc.config.j2
-    dest: "/etc/lxc/config/{{ lxcItem.split('.')[0] }}.config"
-    owner: root
-    group: root
-    mode: 0600
-  vars:
-    lxcMac: "{{ genericConfig.macprefix | default('de:ad:be:ef') }}:{{ lxcItem | hash('md5') | regex_replace('^([0-9a-f]{2}).*([0-9a-f]{2})$', '\\1:\\2') }}"
-
 - name: create /var/lib/lxc/{{ lxcItem.split('.')[0] }}/rootfs
   file:
     dest: /var/lib/lxc/{{ lxcItem.split('.')[0] }}/rootfs
     state: directory
 
+- name: copy lxc config of {{ lxcItem }}
+  template:
+    src: var/lib/lxc/config.j2
+    dest: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/config"
+    owner: root
+    group: root
+    mode: 0600
+  vars:
+    lxcMacDefault: "de:ad:be:ef:{{ lxcItem | hash('md5') | regex_replace('^([0-9a-f]{2}).*([0-9a-f]{2})$', '\\1:\\2') }}"
+    lxcMac: "{{ hostvars[lxcItem]['macaddress'] | default(lxcMacDefault) }}"
+
 - name: create container {{ lxcItem }}
   lxc_container:
     name: "{{ lxcItem.split('.')[0] }}"
-    config: "/etc/lxc/config/{{ lxcItem.split('.')[0] }}.config"
+    config: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/config"
     directory: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/rootfs"
     container_command: /sbin/init
     container_log: True
     template: gentoo-overlay
-    template_options: "--iface={{ lxcConfig.interface | default('eno1') }} --iaddr={{ lxcConfig.ipv4addr | default('dhcp') }} --route={{ lxcConfig.ipv4route | default('default') }}"
+    template_options: "--iface={{ hostvars[lxcItem]['interface'] | default('eth0') }} --iaddr={{ hostvars[lxcItem]['ipv4addr'] | default('dhcp') }} --route={{ hostvars[lxcItem]['ipv4route'] | default('default') }}"
     state: started
 
 - name: link initscript of {{ lxcItem }}

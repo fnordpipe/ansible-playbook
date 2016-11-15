@@ -1,10 +1,13 @@
 lxc.network.type = veth
 lxc.network.hwaddr = {{ lxcMac }}
 lxc.network.flags = up
-lxc.network.link = {{ lxcConfig.bridge | default('br0') }}
+lxc.network.link = {{ hostvars[lxcItem]['lxdBridge'] | default('br0') }}
 lxc.arch = amd64
 lxc.utsname = {{ lxcItem.split('.')[0] }}
 lxc.tty = 1
+
+lxc.rootfs = /var/lib/lxc/x011/rootfs
+lxc.rootfs.backend = dir
 
 lxc.mount.entry=/usr/portage usr/portage none ro,bind,create=dir 0 0
 lxc.mount.entry=/usr/local/fnordpipe-overlay usr/local/fnordpipe-overlay none ro,bind,create=dir 0 0

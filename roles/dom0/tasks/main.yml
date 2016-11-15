@@ -1,12 +1,6 @@
 ---
 # dom0 setup
 
-- name: include generic config
-  include_vars:
-    file: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/config.yml"
-    name: genericConfig
-  failed_when: False
-
 - name: install xen package
   portage:
     package: app-emulation/xen
@@ -17,14 +11,6 @@
 - name: create /etc/xen/config
   file:
     dest: /etc/xen/config
-    owner: root
-    group: root
-    mode: 0750
-    state: directory
-
-- name: create /etc/xen/.ansible
-  file:
-    dest: /etc/xen/.ansible
     owner: root
     group: root
     mode: 0750

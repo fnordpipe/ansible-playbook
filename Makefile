@@ -5,6 +5,11 @@ check:
 
 	ansible-playbook -i ${PLAYBOOK_VAULT_DIR}/production.ini ./site.yml --check
 
+dhcpd:
+	# run only dhcpd
+
+	ansible-playbook -i ${PLAYBOOK_VAULT_DIR}/production.ini ./site.yml --limit dhcpd
+
 lxd:
 	# run only lcd's
 

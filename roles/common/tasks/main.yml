@@ -11,10 +11,14 @@
 
 - name: update authorized_keys
   copy:
-    src: "{{ envAnsibleVault }}/root/.ssh/authorized_keys"
+    content: "{{ sshPubKey }}"
     dest: /root/.ssh/authorized_keys
     owner: root
     group: root
     mode: 0600
-  vars:
-    envAnsibleVault: "{{ lookup('env','PLAYBOOK_VAULT_DIR') }}/roles/common"
+
+- name: enable sshd
+  service:
+    name: sshd
+    state: started
+    enabled: yes

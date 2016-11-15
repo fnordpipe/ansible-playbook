@@ -1,0 +1,31 @@
+---
+# dhcpc config
+
+- name: install dhcpd
+  portage:
+    package: net-misc/dhcp
+    quiet: yes
+    getbinpkg: yes
+    state: present
+
+- name: set interface for dhcpd
+  lineinfile:
+    dest: /etc/conf.d/dhcpd
+    regexp: '(# )?DHCPD_IFACE=".*"'
+    line: DHCPD_IFACE="{{ ansible_default_ipv4['interface'] }}"
+
+- name: update dhcpd config
+  template:
+    src: etc/dhcp/dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart dhcpd
+
+- name: enable dhcpd
+  service:
+    name: dhcpd
+    enabled: yes
+    state: started
