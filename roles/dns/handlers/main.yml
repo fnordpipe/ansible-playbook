@@ -1,0 +1,12 @@
+---
+# dhcpd handlers
+
+- name: restart dns
+  service:
+    name: named
+    state: restarted
+
+- name: reload dns
+  service:
+    name: named
+    state: reloaded

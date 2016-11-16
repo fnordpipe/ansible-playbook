@@ -6,3 +6,4 @@
 - include: dom0.yml
 - include: lxd.yml
 - include: dhcpd.yml
+- include: dns.yml

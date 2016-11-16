@@ -1,0 +1,15 @@
+; dns config
+$TTL 2D
+@                       IN  SOA {{ dnsConfig['soaNs'] }}. {{ dnsConfig['soaContact'] }}. (
+                                {{ lookup('pipe', 'date +%Y%m%d%H%M%S%5N') }}  ; serial
+                                8H          ; refresh
+                                2H          ; retry
+                                4H          ; expire
+                                2H          ; ttl
+)
+
+@ IN NS {{ dnsConfig['soaNs'] }}.
+
+{% for record in item['value'] %}
+{{ record['name'] }} IN {{ record['type'] }} {{ record['data'] }}
+{% endfor %}

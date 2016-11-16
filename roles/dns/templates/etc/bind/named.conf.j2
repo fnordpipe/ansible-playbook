@@ -1,0 +1,87 @@
+// dns config
+
+acl "xfer" {
+  none;
+};
+
+acl "trusted" {
+  127.0.0.0/8;
+{% for net in dnsConfig['internal']['acl'] %}
+  {{ net }};
+{% endfor %}
+};
+
+options {
+  directory "/var/bind";
+  pid-file "/run/named/named.pid";
+
+  listen-on { 0.0.0.0; };
+
+  auth-nxdomain no;
+  recursion yes;
+
+  allow-query {
+    trusted;
+  };
+
+  allow-query-cache {
+    trusted;
+  };
+
+  allow-recursion {
+    trusted;
+  };
+
+  allow-transfer {
+    none;
+  };
+
+  allow-update {
+    none;
+  };
+
+  dnssec-enable yes;
+  //dnssec-validation yes;
+
+  /*
+   * As of bind 9.8.0:
+   * "If the root key provided has expired,
+   * named will log the expiration and validation will not work."
+   */
+  dnssec-validation auto;
+};
+
+/*
+logging {
+	channel default_log {
+		file "/var/log/named/named.log" versions 5 size 50M;
+		print-time yes;
+		print-severity yes;
+		print-category yes;
+	};
+
+	category default { default_log; };
+	category general { default_log; };
+};
+*/
+
+zone "." in {
+  type hint;
+  file "/var/bind/named.cache";
+};
+
+zone "localhost" IN {
+  type master;
+  file "pri/localhost.zone";
+  notify no;
+};
+
+{% set zones = groups['all'] | groupZones(hostvars) | combine(dnsConfig['internal']['zones']) %}
+{% for zoneName, zone in zones.iteritems() %}
+zone "{{ zoneName }}" {
+  type master;
+  file "/etc/bind/db.{{ zoneName }}";
+  allow-query { trusted; };
+  allow-transfer { xfer; };
+};
+{% endfor %}
