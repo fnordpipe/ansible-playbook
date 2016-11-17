@@ -22,3 +22,20 @@
     name: sshd
     state: started
     enabled: yes
+
+- name: update /etc/hosts
+  template:
+    src: etc/hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+
+- name: update /etc/resolv.conf
+  template:
+    src: etc/resolv.conf.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: hostConfig is defined and hostConfig['ipv44addr'] is defined

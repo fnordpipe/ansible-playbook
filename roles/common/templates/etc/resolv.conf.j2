@@ -1,0 +1,5 @@
+domain {{ inventory_hostname | getDomain }}
+search {{ inventory_hostname | getDomain }}
+{% for ns in genericConfig['nsServer'] %}
+nameserver {{ ns }}
+{% endfor %}
