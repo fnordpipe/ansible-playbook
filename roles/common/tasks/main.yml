@@ -38,4 +38,4 @@
     owner: root
     group: root
     mode: 0644
-  when: hostConfig is defined and hostConfig['ipv44addr'] is defined
+  when: hostConfig is defined and hostConfig['network']['interfaces'][hostConfig['network']['default']]['ipv4addr'] is defined

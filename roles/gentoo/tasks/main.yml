@@ -1,13 +1,17 @@
 ---
 # gentoo common config
 
-- name: set hostname
+- name: update network config
   template:
-    src: etc/conf.d/hostname.j2
-    dest: /etc/conf.d/hostname
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
     owner: root
     group: root
     mode: 0644
+  with_items:
+    - { 'src': etc/conf.d/hostname.j2, 'dest': /etc/conf.d/hostname }
+    - { 'src': etc/conf.d/net.j2, 'dest': /etc/conf.d/net }
+  when: inventory_hostname not in groups['dom0']
 
 - name: create /etc/portage/repos.conf
   file:

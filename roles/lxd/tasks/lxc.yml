@@ -22,8 +22,10 @@
     container_command: /sbin/init
     container_log: True
     template: gentoo-overlay
-    template_options: "--iface={{ hostvars[lxcItem]['lxcConfig']['interface'] | default('eth0') }} --iaddr={{ hostvars[lxcItem]['lxcConfig']['ipv4addr'] | default('dhcp') }} --route={{ hostvars[lxcItem]['lxcConfig']['ipv4route'] | default('default') }}"
+    template_options: "--iface={{ lxcInterface }} --iaddr={{ hostvars[lxcItem]['hostConfig']['network']['interfaces'][lxcInterface]['ipv4addr'] | default('dhcp') }} --route={{ hostvars[lxcItem]['hostConfig']['network']['interfaces'][lxcInterface]['ipv4route'] | default('default') }}"
     state: started
+  vars:
+    - lxcInterface: "{{ hostvars[lxcItem]['hostConfig']['network']['default'] | default('eth0') }}"
 
 - name: link initscript of {{ lxcItem }}
   file:
