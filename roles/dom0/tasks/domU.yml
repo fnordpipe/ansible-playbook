@@ -17,3 +17,11 @@
     lv: "{{ domUItem.split('.')[0] }}"
     size: 10g
     state: present
+
+- name: create dom'U {{ domUItem }}
+  xen_xl:
+    config: /etc/xen/config/{{ domUItem.split('.')[0] }}.config
+    name: "{{ domUItem.split('.')[0] }}"
+    template: gentoo-overlay
+    template_args: "--iface={{ hostvars[domUItem]['hostConfig']['network']['default'] | default('eth0') }}"
+    state: started

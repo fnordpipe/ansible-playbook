@@ -5,7 +5,7 @@ vcpus = 4
 name = '{{ domUItem.split('.')[0] }}'
 
 vif = [
-  'mac={{ domUMac }}, bridge={{ hostvars[ domUItem ]['domUBridge'] | default('br0') }}'
+  'mac={{ domUMac }}, bridge={{ hostvars[ domUItem ]['domUConfig']['bridge'] | default('br0') }}'
 ]
 
 disk = [
