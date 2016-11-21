@@ -15,7 +15,8 @@ options {
   directory "/var/bind";
   pid-file "/run/named/named.pid";
 
-  listen-on { 0.0.0.0; };
+  listen-on { any; };
+  listen-on-v6 { any; };
 
   auth-nxdomain no;
   recursion yes;
@@ -40,7 +41,7 @@ options {
     none;
   };
 
-  dnssec-enable yes;
+  //dnssec-enable no;
   //dnssec-validation yes;
 
   /*
@@ -48,7 +49,7 @@ options {
    * "If the root key provided has expired,
    * named will log the expiration and validation will not work."
    */
-  dnssec-validation auto;
+  //dnssec-validation auto;
 };
 
 /*
@@ -80,7 +81,7 @@ zone "localhost" IN {
 {% for zoneName, zone in zones.iteritems() %}
 zone "{{ zoneName }}" {
   type master;
-  file "/etc/bind/db.{{ zoneName }}";
+  file "/etc/bind/pri/{{ zoneName }}.zone";
   allow-query { trusted; };
   allow-transfer { xfer; };
 };
