@@ -64,3 +64,36 @@
     key: "{{ item }}"
     state: present
   with_items: "{{ hostvars[inventory_hostname]['gitConfig']['sshPubKeys'] | default([]) }}"
+
+- name: update git categories
+  file:
+    dest: "/var/lib/git/{{ item.category }}"
+    owner: git
+    group: git
+    mode: 0755
+    state: directory
+  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
+
+- name: update repositories
+  command: "git init --bare /var/lib/git/{{ item.category }}/{{ item.name }}.git"
+  args:
+    chdir: /var/lib/git
+    creates: "/var/lib/git/{{ item.category }}/{{ item.name }}.git"
+  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
+
+- name: update repo config
+  template:
+    src: var/lib/git/cgitrc.j2
+    dest: "/var/lib/git/{{ item.category }}/{{ item.name }}.git/cgitrc"
+    owner: git
+    group: git
+    mode: 0644
+  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
+
+- name: update permissions
+  file:
+    dest: "/var/lib/git/{{ item.category }}"
+    owner: git
+    group: git
+    recurse: yes
+  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
