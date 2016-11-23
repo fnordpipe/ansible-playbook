@@ -57,3 +57,10 @@
   with_items:
     - spawn-fcgi.cgit
     - nginx
+
+- name: update authorized_keys
+  authorized_key:
+    user: git
+    key: "{{ item }}"
+    state: present
+  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['sshPubKeys'] | default([]) }}"
