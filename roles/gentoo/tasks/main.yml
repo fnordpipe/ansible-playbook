@@ -45,3 +45,10 @@
     dest: /etc/portage/make.profile
     force: yes
     state: link
+
+- name: install base packages
+  portage:
+    name: net-misc/curl
+    quiet: yes
+    getbinpkg: yes
+    state: present
