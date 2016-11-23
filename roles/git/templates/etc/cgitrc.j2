@@ -1,0 +1,14 @@
+# cgitrc
+root-title={{ gitConfig['title'] | default('cgit') }}
+root-desc={{ gitConfig['description'] | default('git repositories') }}
+snapshots=tar.bz2 tar.xz
+
+virtual-root=/
+css=/cgit.css
+logo=/cgit.png
+
+scan-path=/var/lib/git
+enable-git-config=1
+enable-commit-graph=1
+
+source-filter=/usr/lib/cgit/filters/syntax-highlighting.sh

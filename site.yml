@@ -7,3 +7,5 @@
 - include: lxd.yml
 - include: dhcpd.yml
 - include: dns.yml
+
+- include: git.yml

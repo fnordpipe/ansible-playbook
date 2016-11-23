@@ -1,0 +1,59 @@
+---
+- name: install packages
+  portage:
+    name: "{{ item }}"
+    quiet: yes
+    getbinpkg: yes
+  with_items:
+    - dev-vcs/git
+    - www-misc/fcgiwrap
+    - www-servers/spawn-fcgi
+    - www-servers/nginx
+    - www-apps/cgit
+
+- name: create /etc/nginx/conf.d
+  file:
+    dest: /etc/nginx/conf.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: check config
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: etc/nginx/nginx.conf.j2, dest: /etc/nginx/nginx.conf, owner: root, group: root, mode: 644 }
+    - { src: etc/nginx/conf.d/cgit.conf.j2, dest: /etc/nginx/conf.d/cgit.conf, owner: root, group: root, mode: 644 }
+    - { src: etc/conf.d/spawn-fcgi.j2, dest: /etc/conf.d/spawn-fcgi.cgit, owner: root, group: root, mode: 644 }
+    - { src: etc/cgitrc.j2, dest: /etc/cgitrc, owner: root, group: root, mode: 644 }
+
+- name: set initscript symlink
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  with_items:
+    - { src: spawn-fcgi, dest: /etc/init.d/spawn-fcgi.cgit }
+    - { src: /etc/init.d/spawn-fcgi.cgit, dest: /etc/runlevels/default/spawn-fcgi.cgit }
+    - { src: /etc/init.d/nginx, dest: /etc/runlevels/default/nginx }
+
+- name: check user
+  user:
+    createhome: yes
+    home: /var/lib/git
+    name: git
+    shell: /usr/bin/git-shell
+    state: present
+
+- name: start http service
+  service:
+    name: "{{ item }}"
+    state: started
+  with_items:
+    - spawn-fcgi.cgit
+    - nginx
