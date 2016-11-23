@@ -10,6 +10,7 @@
   with_items:
     - app-emulation/lxc
     - dev-python/python2-lxc
+    - net-misc/bridge-utils
 
 - name: create /etc/lxc/config and /var/lib/lxc
   file:
