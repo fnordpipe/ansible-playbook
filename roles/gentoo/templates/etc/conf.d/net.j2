@@ -1,9 +1,17 @@
 {% if hostvars[inventory_hostname]['hostConfig']['network']['interfaces'] is defined %}
 {% set interfaces = hostvars[inventory_hostname]['hostConfig']['network']['interfaces'] %}
 {% for key, interface in interfaces.iteritems() %}
-config_{{ key }}="{{ interface['ipv4addr'] }}"
+config_{{ key }}="{{ interface['ipv4addr'] | default('dhcp') }}"
 {% if interface['ipv4route'] is defined %}
 routes_{{ key }}="default via {{ interface['ipv4route'] }}"
+{% endif %}
+{% if interface['bridge'] is defined %}
+bridge_{{ key }}="{{ interface['bridge'] }}"
+brctl_{{ key }}="
+  setfd 0
+  sethello 10
+  stp off
+"
 {% endif %}
 {% endfor %}
 {% endif %}

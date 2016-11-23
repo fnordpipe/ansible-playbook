@@ -11,7 +11,26 @@
   with_items:
     - { 'src': etc/conf.d/hostname.j2, 'dest': /etc/conf.d/hostname }
     - { 'src': etc/conf.d/net.j2, 'dest': /etc/conf.d/net }
-  when: inventory_hostname not in groups['dom0']
+
+- name: symlink network interfaces
+  file:
+    src: net.lo
+    dest: "/etc/init.d/net.{{ item.key }}"
+    state: link
+  with_dict: "{{ hostvars[inventory_hostname]['hostConfig']['network']['interfaces'] }}"
+
+- name: enable all network interfaces
+  file:
+    src: "/etc/init.d/net.{{ item.key }}"
+    dest: "/etc/runlevels/default/net.{{ item.key }}"
+    state: link
+  with_dict: "{{ hostvars[inventory_hostname]['hostConfig']['network']['interfaces'] }}"
+
+- name: start all network interfaces
+  service:
+    name: "net.{{ item.key }}"
+    state: started
+  with_dict: "{{ hostvars[inventory_hostname]['hostConfig']['network']['interfaces'] }}"
 
 - name: create /etc/portage/repos.conf
   file:
