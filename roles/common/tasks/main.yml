@@ -1,6 +1,15 @@
 ---
 # common server setup
 
+- name: update timezone
+  copy:
+    remote_src: True
+    src: /usr/share/zoneinfo/Etc/UTC
+    dest: /etc/localtime
+    owner: root
+    group: root
+    mode: 0644
+
 - name: create /root/.ssh
   file:
     dest: /root/.ssh
