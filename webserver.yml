@@ -1,0 +1,8 @@
+---
+# assign webserver role
+- name: assign webserver role
+  hosts: webserver
+  remote_user: root
+
+  roles:
+  - webserver

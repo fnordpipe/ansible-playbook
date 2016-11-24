@@ -10,14 +10,6 @@
     - www-servers/spawn-fcgi
     - www-apps/cgit
 
-- name: create /etc/nginx/conf.d
-  file:
-    dest: /etc/nginx/conf.d
-    owner: root
-    group: root
-    mode: 0755
-    state: directory
-
 - name: check config
   template:
     src: "{{ item.src }}"

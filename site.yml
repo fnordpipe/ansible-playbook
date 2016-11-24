@@ -10,3 +10,5 @@
 
 - include: git.yml
 - include: rsync.yml
+- include: webserver.yml
+- include: dirlisting.yml

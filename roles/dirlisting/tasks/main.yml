@@ -1,0 +1,27 @@
+---
+- name: check user
+  user:
+    createhome: yes
+    home: /var/lib/dirlisting
+    name: dirlisting
+    group: nginx
+    shell: /bin/bash
+    state: present
+
+- name: create data directory
+  file:
+    dest: /var/lib/dirlisting/htdocs
+    owner: dirlisting
+    group: nginx
+    mode: 0750
+    state: directory
+
+- name: create config
+  template:
+    src: etc/nginx/conf.d/dirlisting.conf.j2
+    dest: /etc/nginx/conf.d/dirlisting.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart webserver

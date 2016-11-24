@@ -1,0 +1,8 @@
+---
+# assign dirlisting role
+- name: assign dirlisting role
+  hosts: dirlisting
+  remote_user: root
+
+  roles:
+  - dirlisting

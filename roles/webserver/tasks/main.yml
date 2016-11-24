@@ -13,6 +13,14 @@
     group: root
     mode: 0644
 
+- name: create webserver config directory
+  file:
+    dest: /etc/nginx/conf.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
 - name: link initscript
   file:
     src: /etc/init.d/nginx
