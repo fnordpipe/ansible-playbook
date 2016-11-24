@@ -1,12 +1,15 @@
 ---
 # dom0 setup
 
-- name: install xen package
+- name: install xen packages
   portage:
-    package: app-emulation/xen
+    package: "{{ item }}"
     quiet: yes
     getbinpkg: yes
     state: present
+  with_items:
+    - app-emulation/xen
+    - app-emulation/xen-templates
 
 - name: create /etc/xen/config
   file:
