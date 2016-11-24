@@ -9,3 +9,4 @@
 - include: dns.yml
 
 - include: git.yml
+- include: rsync.yml

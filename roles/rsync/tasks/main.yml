@@ -1,0 +1,33 @@
+---
+- name: install rsync
+  portage:
+    name: net-misc/rsync
+    getbinpkg: yes
+    quiet: yes
+
+- name: update repo directories
+  file:
+    dest: "/var/lib/rsync/{{ item.name }}"
+    owner: rsync
+    group: rsync
+    mode: 0755
+  with_items: "{{ hostvars[inventory_hostname]['rsyncConfig']['repos'] | default([]) }}"
+
+- name: update /etc/rsyncd.conf
+  template:
+    src: etc/rsyncd.conf.j2
+    dest: /etc/rsyncd.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: link initscript
+  file:
+    src: /etc/init.d/rsyncd
+    dest: /etc/runlevels/default/rsyncd
+    state: link
+
+- name: start initscript
+  service:
+    name: rsyncd
+    state: started

@@ -1,0 +1,8 @@
+---
+# assign rsync role
+- name: assign rsync role
+  hosts: rsync
+  remote_user: root
+
+  roles:
+  - rsync
