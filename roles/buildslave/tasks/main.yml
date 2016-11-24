@@ -1,0 +1,66 @@
+---
+- name: install package
+  portage:
+    name: dev-util/buildbot-slave
+    getbinpkg: yes
+    quiet: yes
+
+- name: link initscript
+  file:
+    src: /etc/init.d/buildslave
+    dest: /etc/runlevels/default/buildslave
+    state: link
+
+- name: create data directory
+  file:
+    dest: /var/lib/buildslave
+    owner: "{{ buildConfig['user'] | default('buildbot') }}"
+    group: "{{ buildConfig['group'] | default('buildbot') }}"
+    mode: 0750
+    state: directory
+
+- name: create buildslave
+  command: "buildslave create-slave /var/lib/buildslave {{ buildConfig['master'] }}:9989 {{ buildConfig['name'] }} {{ buildConfig['password'] }}"
+  args:
+    creates: /var/lib/buildslave/info
+
+- name: update permissions
+  file:
+    dest: /var/lib/buildslave
+    owner: "{{ buildConfig['user'] | default('buildbot') }}"
+    group: "{{ buildConfig['group'] | default('buildbot') }}"
+    recurse: yes
+
+- name: update metadata
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ buildConfig['user'] | default('buildbot') }}"
+    group: "{{ buildConfig['group'] | default('buildbot') }}"
+    mode: 0640
+  with_items:
+    - { src: var/lib/buildslave/info/admin.j2, dest: /var/lib/buildslave/info/admin }
+    - { src: var/lib/buildslave/info/host.j2, dest: /var/lib/buildslave/info/host }
+  notify:
+    - restart buildslave
+
+- name: update config
+  lineinfile:
+    dest: "{{ item.dest }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { dest: /var/lib/buildslave/buildbot.tac, regexp: '^slavename = .*', line: "slavename = '{{ buildConfig['name'] }}'" }
+    - { dest: /var/lib/buildslave/buildbot.tac, regexp: '^passwd = .*', line: "passwd = '{{ buildConfig['password'] }}'" }
+    - { dest: /etc/conf.d/buildslave, regexp: '^USERNAME=".*"', line: "USERNAME=\"{{ buildConfig['user'] | default('buildbot') }}\"" }
+  notify:
+    - restart buildslave
+
+- name: set python default version
+  command: eselect python set 1
+
+- name: start service
+  service:
+    name: buildslave
+    state: started

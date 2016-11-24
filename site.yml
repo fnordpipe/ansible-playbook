@@ -12,3 +12,5 @@
 - include: rsync.yml
 - include: webserver.yml
 - include: dirlisting.yml
+- include: buildmaster.yml
+- include: buildslave.yml
