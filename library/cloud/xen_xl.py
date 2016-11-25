@@ -90,7 +90,7 @@ class XenXlClient:
     def createXl(self):
         xl = subprocess.Popen(
             ['xl', 'create', self.config['file']],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE
         )
         stdOut, stdErr = xl.communicate()
         self.state = self.getXlState()
@@ -103,7 +103,7 @@ class XenXlClient:
     def destroyXl(self):
         xl = subprocess.Popen(
             ['xl', 'destroy', self.name],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE
         )
         stdOut, stdErr = xl.communicate()
         self.state = self.getXlState()
@@ -119,7 +119,7 @@ class XenXlClient:
     def getXlState(self):
         xl = subprocess.Popen(
             ['xl', 'list', self.name],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE
         )
         stdOut, stdErr = xl.communicate()
 
@@ -152,7 +152,7 @@ class XenXlClient:
 
         xl = subprocess.Popen(
             ['/usr/share/xen/templates/%s' % (self.template), '--dev=%s' % (lvmDev)] + templateArgs,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE
         )
         stdOut, stdErr = xl.communicate()
 
@@ -174,7 +174,7 @@ class XenXlClient:
     def shutdownXl(self):
         xl = subprocess.Popen(
             ['xl', 'shutdown', self.name],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE
         )
         stdOut, stdErr = xl.communicate()
 
@@ -199,14 +199,14 @@ class AnsibleWrapper:
 
     def __init__(self):
         self.module = AnsibleModule(
-            argument_spec=dict(
-                config=dict(required=True, type='path'),
-                state=dict(type='str', default='started'),
-                name=dict(required=True, type='str'),
-                template=dict(type='str', default='gentoo-overlay'),
-                template_args=dict(type='str')
+            argument_spec = dict(
+                config = dict(required = True, type = 'path'),
+                state = dict(type = 'str', default = 'started'),
+                name = dict(required = True, type = 'str'),
+                template = dict(type = 'str', default = 'gentoo-overlay'),
+                template_args = dict(type = 'str')
             ),
-            supports_check_mode=False
+            supports_check_mode = False
         )
 
         self.args = {
@@ -313,8 +313,8 @@ class AnsibleWrapper:
     def run(self):
         if self.xl.hasState(self.args['state']):
             self.module.exit_json(
-                changed=False,
-                xen_xl={
+                changed = False,
+                xen_xl = {
                     'name': self.args['name'],
                     'state': self.args['state']
                 }
