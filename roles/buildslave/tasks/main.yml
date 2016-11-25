@@ -1,15 +1,40 @@
 ---
 - name: install package
   portage:
-    name: dev-util/buildbot-slave
+    name: "{{ item }}"
     getbinpkg: yes
     quiet: yes
+  with_items:
+    - dev-vcs/git
+    - dev-util/buildbot-slave
 
 - name: link initscript
   file:
     src: /etc/init.d/buildslave
     dest: /etc/runlevels/default/buildslave
     state: link
+
+- name: update user
+  user:
+    name: buildbot
+    home: /var/lib/buildslave
+
+- name: update ssh config
+  ssh_config:
+    user: "{{ item.user }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { user: "{{ buildConfig['user'] | default('buildbot') }}", option: StrictHostKeyChecking, value: 'no' }
+    - { user: "{{ buildConfig['user'] | default('buildbot') }}", option: IdentityFile, value: '~/.ssh/build.key' }
+
+- name: copy private key
+  copy:
+    content: "{{ authConfig['sshKey'] }}"
+    dest: "{{ buildConfig['user'] | default('buildbot') | getHome }}/.ssh/build.key"
+    owner: "{{ buildConfig['user'] | default('buildbot') }}"
+    group: "{{ buildConfig['user'] | default('buildbot') }}"
+    mode: 0600
 
 - name: create data directory
   file:
