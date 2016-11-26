@@ -29,14 +29,14 @@
     dest: "/var/lib/buildmaster/.ssh/config"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    owner: "{{ item.user }}"
-    group: "{{ item.user }}"
+    owner: buildbot
+    group: buildbot
     mode: 0600
     state: present
     create: yes
   with_items:
-    - { user: buildbot, regexp: '^StrictHostKeyChecking .*$', line: StrictHostKeyChecking no }
-    - { user: buildbot, regexp: '^IdentityFile .*$', line: IdentityFile ~/.ssh/build.key }
+    - { regexp: '^StrictHostKeyChecking .*$', line: StrictHostKeyChecking no }
+    - { regexp: '^IdentityFile .*$', line: IdentityFile ~/.ssh/build.key }
 
 - name: copy private key
   copy:

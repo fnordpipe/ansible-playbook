@@ -19,19 +19,29 @@
     name: buildbot
     home: /var/lib/buildslave
 
+- name: read user home directory
+  user_info:
+    user: "{{ buildConfig['user'] | default('buildbot') }}"
+  register: userInfo
+
 - name: update ssh config
-  ssh_config:
-    user: "{{ item.user }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
+  lineinfile:
+    dest: "{{ userInfo['user_info']['home'] }}/.ssh/config"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    owner: "{{ buildConfig['user'] | default('buildbot') }}"
+    group: "{{ buildConfig['user'] | default('buildbot') }}"
+    mode: 0600
+    state: present
+    create: yes
   with_items:
-    - { user: "{{ buildConfig['user'] | default('buildbot') }}", option: StrictHostKeyChecking, value: 'no' }
-    - { user: "{{ buildConfig['user'] | default('buildbot') }}", option: IdentityFile, value: '~/.ssh/build.key' }
+    - { regexp: '^StrictHostKeyChecking .*$', line: StrictHostKeyChecking no }
+    - { regexp: '^IdentityFile .*$', line: IdentityFile ~/.ssh/build.key }
 
 - name: copy private key
   copy:
     content: "{{ authConfig['sshKey'] }}"
-    dest: "{{ buildConfig['user'] | default('buildbot') | getHome }}/.ssh/build.key"
+    dest: "{{ userInfo['user_info']['home'] }}/.ssh/build.key"
     owner: "{{ buildConfig['user'] | default('buildbot') }}"
     group: "{{ buildConfig['user'] | default('buildbot') }}"
     mode: 0600
