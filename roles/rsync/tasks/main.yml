@@ -13,6 +13,13 @@
     shell: /bin/bash
     state: present
 
+- name: update authorized_keys
+  authorized_key:
+    user: rsync
+    key: "{{ item }}"
+    state: present
+  with_items: "{{ hostvars[inventory_hostname]['rsyncConfig']['sshPubKeys'] | default([]) }}"
+
 - name: update repo directories
   file:
     dest: "/var/lib/rsync/{{ item.name }}"
