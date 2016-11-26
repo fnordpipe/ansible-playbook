@@ -48,6 +48,7 @@
   command: "buildslave create-slave /var/lib/buildslave {{ buildConfig['master'] }}:9989 {{ buildConfig['name'] }} {{ buildConfig['password'] }}"
   args:
     creates: /var/lib/buildslave/info
+  register: buildCreate
 
 - name: update permissions
   file:
@@ -55,6 +56,7 @@
     owner: "{{ buildConfig['user'] | default('buildbot') }}"
     group: "{{ buildConfig['group'] | default('buildbot') }}"
     recurse: yes
+  when: buildCreate.changed
 
 - name: update metadata
   template:
