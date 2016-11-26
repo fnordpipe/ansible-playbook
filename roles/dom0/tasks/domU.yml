@@ -15,7 +15,7 @@
   lvol:
     vg: "{{ domUItem.split('.')[1] }}"
     lv: "{{ domUItem.split('.')[0] }}"
-    size: 10g
+    size: "{{ hostvars[domUItem]['hostConfig']['lvSize'] | default('10g') }}"
     state: present
 
 - name: create dom'U {{ domUItem }}
