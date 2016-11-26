@@ -54,7 +54,7 @@ factory_{{ factory['name'] }} = util.BuildFactory()
 factory_{{ factory['name'] }}.addStep(steps.Git(
   name = '{{ step['name'] }}',
   repourl = '{{ step['url'] }}',
-  workdir = util.Interpolate('work/{{ factory['name'] }}/%(prop:buildnumber)s/{{ step['workdir'] | default('') }}'),
+  workdir = util.Interpolate('%(prop:buildnumber)s/{{ step['workdir'] | default('') }}'),
   mode = '{{ step['mode'] | default('incremental') }}',
   alwaysUseLatest = {{ step['alwaysUseLatest'] | default('False') }},
   haltOnFailure = {{ step['haltOnFailure'] | default('True') }}
@@ -68,7 +68,7 @@ factory_{{ factory['name'] }}.addStep(steps.ShellCommand(
   name = '{{ step['name'] }}',
   env = {'BUILDNUMBER': util.Interpolate('%(prop:buildnumber)s')},
   command = ['{{ step['command'] | regex_replace(' ', "', '") }}'],
-  workdir = util.Interpolate('work/{{ factory['name'] }}/%(prop:buildnumber)s/{{ step['workdir'] | default('') }}'),
+  workdir = util.Interpolate('%(prop:buildnumber)s/{{ step['workdir'] | default('') }}'),
   timeout = {{ step['timeout'] | default('None') }},
   haltOnFailure = {{ step['haltOnFailure'] | default('True') }},
   alwaysRun = {{ step['alwaysRun'] | default('False') }}

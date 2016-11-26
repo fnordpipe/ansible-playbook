@@ -13,14 +13,30 @@
     name: buildbot
     home: /var/lib/buildmaster
 
-- name: update ssh config
-  ssh_config:
-    user: "{{ item.user }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
+- name: create directories
+  file:
+    dest: "{{ item.dest }}"
+    owner: buildbot
+    group: buildbot
+    mode: "{{ item.mode }}"
+    state: directory
   with_items:
-    - { user: buildbot, option: StrictHostKeyChecking, value: 'no' }
-    - { user: buildbot, option: IdentityFile, value: '~/.ssh/build.key' }
+    - { dest: "/var/lib/buildmaster/{{ buildConfig['name'] }}", mode: 750 }
+    - { dest: "/var/lib/buildmaster/.ssh", mode: 700 }
+
+- name: update ssh config
+  lineinfile:
+    dest: "/var/lib/buildmaster/.ssh/config"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: 0600
+    state: present
+    create: yes
+  with_items:
+    - { user: buildbot, regexp: '^StrictHostKeyChecking .*$', line: StrictHostKeyChecking no }
+    - { user: buildbot, regexp: '^IdentityFile .*$', line: IdentityFile ~/.ssh/build.key }
 
 - name: copy private key
   copy:
@@ -30,18 +46,11 @@
     group: buildbot
     mode: 0600
 
-- name: create data directory
-  file:
-    dest: "/var/lib/buildmaster/{{ buildConfig['name'] }}"
-    owner: buildbot
-    group: buildbot
-    mode: 0750
-    state: directory
-
 - name: create master
   command: "buildbot create-master /var/lib/buildmaster/{{ buildConfig['name'] }}"
   args:
     creates: "/var/lib/buildmaster/{{ buildConfig['name'] }}/buildbot.tac"
+  register: buildCreate
 
 - name: update permissions
   file:
@@ -49,6 +58,7 @@
     owner: buildbot
     group: buildbot
     recurse: yes
+  when: buildCreate.changed
 
 - name: create master.cfg
   template:
