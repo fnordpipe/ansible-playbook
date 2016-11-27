@@ -151,7 +151,7 @@ class XenXlClient:
         templateArgs = args.split(' ') if args is not None else []
 
         xl = subprocess.Popen(
-            ['/usr/share/xen/templates/%s' % (self.template), '--dev=%s' % (lvmDev)] + templateArgs,
+            ['/usr/share/xen/templates/xen-%s' % (self.template), '--dev=%s' % (lvmDev)] + templateArgs,
             stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE
         )
         stdOut, stdErr = xl.communicate()
