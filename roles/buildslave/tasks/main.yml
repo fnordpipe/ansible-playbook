@@ -81,6 +81,13 @@
   notify:
     - restart buildslave
 
+- name: update buildbot settings
+  lineinfile:
+    dest: /var/lib/buildslave/buildbot.tac
+    regexp: '^umask = .*$'
+    line: umask = 022
+    state: present
+
 - name: update config
   lineinfile:
     dest: "{{ item.dest }}"
