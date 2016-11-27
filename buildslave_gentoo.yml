@@ -1,0 +1,7 @@
+---
+- name: assign buildslave_gentoo role
+  hosts: buildslave_gentoo
+  remote_user: root
+
+  roles:
+  - buildslave_gentoo

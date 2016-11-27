@@ -14,3 +14,4 @@
 - include: dirlisting.yml
 - include: buildmaster.yml
 - include: buildslave.yml
+- include: buildslave_gentoo.yml
