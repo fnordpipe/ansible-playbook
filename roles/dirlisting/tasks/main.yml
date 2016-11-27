@@ -25,3 +25,10 @@
     mode: 0644
   notify:
     - restart webserver
+
+- name: update authorized_keys
+  authorized_key:
+    user: dirlisting
+    key: "{{ item }}"
+    state: present
+  with_items: "{{ hostvars[inventory_hostname]['httpConfig']['sshPubKeys'] | default([]) }}"
