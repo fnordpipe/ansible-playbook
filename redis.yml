@@ -1,0 +1,7 @@
+---
+- name: assign redis role
+  hosts: redis
+  remote_user: root
+
+  roles:
+  - redis

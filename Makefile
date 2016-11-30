@@ -1,5 +1,8 @@
 export PLAYBOOK_VAULT_DIR?=../vault
 
+config:
+	test -f /etc/ansible/ansible.cfg && cat /etc/ansible/ansible.cfg | tail -n +2 >> ansible.cfg
+
 check:
 	# invoke dry-run
 

@@ -1,0 +1,5 @@
+[defaults]
+gathering = smart
+fact_caching = redis
+fact_caching_timeout = 86400
+fact_caching_connection = {{ buildConfig['ansible']['cache']['server'] }}:{{ buildConfig['ansible']['cache']['port'] }}:{{ buildConfig['ansible']['cache']['database'] }}:{{ buildConfig['ansible']['cache']['password'] }}
