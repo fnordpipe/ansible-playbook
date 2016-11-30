@@ -21,7 +21,7 @@
     directory: "/var/lib/lxc/{{ lxcItem.split('.')[0] }}/rootfs"
     container_command: /sbin/init
     container_log: True
-    template: gentoo-overlay
+    template: fnordpipe-overlay
     template_options: "--iface={{ lxcInterface }} --iaddr={{ hostvars[lxcItem]['hostConfig']['network']['interfaces'][lxcInterface]['ipv4addr'] | default('dhcp') }} --route={{ hostvars[lxcItem]['hostConfig']['network']['interfaces'][lxcInterface]['ipv4route'] | default('default') }}"
     state: started
   vars:

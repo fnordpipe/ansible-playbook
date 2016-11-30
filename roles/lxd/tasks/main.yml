@@ -9,6 +9,7 @@
     state: present
   with_items:
     - app-emulation/lxc
+    - app-emulation/lxc-templates
     - dev-python/python2-lxc
     - net-misc/bridge-utils
 
