@@ -34,14 +34,23 @@ c['change_source'].append(changes.GitPoller(
 {% endfor %}
 {% endif %}
 
-{% if buildConfig['scheduler'] is defined %}
-{% for scheduler in buildConfig['scheduler'] %}
+{% if buildConfig['scheduler']['nightly'] is defined %}
+{% for scheduler in buildConfig['scheduler']['nightly'] %}
 c['schedulers'].append({{ scheduler['type'] }}(
   name = '{{ scheduler['name'] }}',
   change_filter = util.ChangeFilter(project = '{{ scheduler['project'] }}', branch = '{{ scheduler['branch'] }}'),
   branch = '{{ scheduler['branch'] }}',
   builderNames = ['{{ scheduler['builder'] }}'],
   hour = {{ scheduler['hour'] }}, minute = {{ scheduler['minute'] }}))
+{% endfor %}
+{% endif %}
+
+{% if buildConfig['scheduler']['periodic'] is defined %}
+{% for scheduler in buildConfig['scheduler']['periodic'] %}
+c['schedulers'].append({{ scheduler['type'] }}(
+  name = '{{ scheduler['name'] }}',
+  builderNames = ['{{ scheduler['builder'] }}'],
+  periodicBuildTimer = {{ scheduler['periodicBuildTimer'] }}))
 {% endfor %}
 {% endif %}
 
