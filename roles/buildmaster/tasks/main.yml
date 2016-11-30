@@ -67,6 +67,7 @@
     owner: buildbot
     group: buildbot
     mode: 0640
+  register: buildService
 
 - name: create initscript symlinks
   file:
@@ -81,3 +82,9 @@
   service:
     name: "buildmaster.{{ buildConfig['name'] }}"
     state: started
+
+- name: restart buildmaster
+  service:
+    name: "buildmaster.{{ buildConfig['name'] }}"
+    state: restarted
+  when: buildService.changed
