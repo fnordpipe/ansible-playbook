@@ -15,3 +15,4 @@
 - include: buildmaster.yml
 - include: buildslave.yml
 - include: buildslave_gentoo.yml
+- include: buildslave_ansible.yml

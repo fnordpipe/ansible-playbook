@@ -1,0 +1,7 @@
+---
+- name: assign buildslave_ansible role
+  hosts: buildslave_ansible
+  remote_user: root
+
+  roles:
+  - buildslave_ansible

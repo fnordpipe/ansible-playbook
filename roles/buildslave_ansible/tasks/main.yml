@@ -1,0 +1,6 @@
+---
+- name: install packages
+  portage:
+    name: app-admin/ansible
+    getbinpkg: yes
+    quiet: yes
