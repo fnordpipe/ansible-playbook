@@ -28,7 +28,7 @@ c['builders'] = []
 c['change_source'].append(changes.GitPoller(
   project = '{{ poller['project'] }}',
   repourl = '{{ poller['url']}}',
-  branch = '{{ poller['branch'] }}',
+  branches = [{{ poller['branches'] }}],
   workdir = 'gitpoller-{{ poller['workdir'] }}',
   pollinterval = {{ poller['interval'] }}))
 {% endfor %}
@@ -42,6 +42,16 @@ c['schedulers'].append({{ scheduler['type'] }}(
   branch = '{{ scheduler['branch'] }}',
   builderNames = ['{{ scheduler['builder'] }}'],
   hour = {{ scheduler['hour'] }}, minute = {{ scheduler['minute'] }}))
+{% endfor %}
+{% endif %}
+
+{% if buildConfig['scheduler']['change'] is defined %}
+{% for scheduler in buildConfig['scheduler']['change'] %}
+c['schedulers'].append({{ scheduler['type'] }}(
+  name = '{{ scheduler['name'] }}',
+  change_filter = util.ChangeFilter(project = '{{ scheduler['project'] }}', branch = '{{ scheduler['branch'] }}'),
+  builderNames = ['{{ scheduler['builder'] }}'],
+  treeStableTimer = {{ scheduler['treeStableTimer'] }}))
 {% endfor %}
 {% endif %}
 
