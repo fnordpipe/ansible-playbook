@@ -67,7 +67,21 @@
 
 - name: install base packages
   portage:
-    name: net-misc/curl
+    name: "{{ item }}"
     quiet: yes
     getbinpkg: yes
     state: present
+  with_items:
+    - app-admin/syslog-ng
+    - net-misc/curl
+
+- name: link initscripts
+  file:
+    src: /etc/init.d/syslog-ng
+    dest: /etc/runlevels/default/syslog-ng
+    state: link
+
+- name: start syslog
+  service:
+    name: syslog-ng
+    state: started
