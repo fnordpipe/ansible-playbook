@@ -3,10 +3,13 @@
 
 - name: install dhcpd
   portage:
-    package: net-misc/dhcp
+    package: "{{ item }}"
     quiet: yes
     getbinpkg: yes
     state: present
+  with_items:
+    - net-misc/dhcp
+    - net-misc/dhcp-ansible
 
 - name: set interface for dhcpd
   lineinfile:
@@ -23,6 +26,14 @@
     mode: 0644
   notify:
     - restart dhcpd
+
+- name: update hook config
+  template:
+    src: etc/dhcp/ansible.ini.j2
+    dest: /etc/dhcp/ansible.ini
+    owner: root
+    group: dhcp
+    mode: 0640
 
 - name: enable dhcpd
   service:

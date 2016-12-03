@@ -1,13 +1,22 @@
 # dhcp config
 authoritative;
 
-subnet {{ dhcpConfig.subnetId | default('10.255.255.0') }} netmask {{ dhcpConfig.netmask | default('255.255.255.0') }} {
-  range {{ dhcpConfig.rangeStart | default('10.255.255.20') }} {{ dhcpConfig.rangeEnd | default('10.255.255.254') }};
-  default-lease-time {{ dhcpConfig.lease | default('86400') }};
+subnet {{ dhcpConfig['subnetId'] | default('10.255.255.0') }} netmask {{ dhcpConfig['netmask'] | default('255.255.255.0') }} {
+  range {{ dhcpConfig['rangeStart'] | default('10.255.255.20') }} {{ dhcpConfig['rangeEnd'] | default('10.255.255.254') }};
+  default-lease-time {{ dhcpConfig['lease'] | default('86400') }};
 
-  option routers {{ dhcpConfig.defaultRoute | default('10.255.255.1') }};
-  option domain-name "{{ dhcpConfig.domainName | default('example.org') }}";
-  option domain-name-servers {{ dhcpConfig.dnsServers | default('85.214.20.141') }};
+  option routers {{ dhcpConfig['defaultRoute'] | default('10.255.255.1') }};
+  option domain-name "{{ dhcpConfig['domainName'] | default('example.org') }}";
+  option domain-name-servers {{ dhcpConfig['dnsServers'] | default('85.214.20.141') }};
+
+  on commit {
+    execute(
+      "/usr/libexec/dhcp/hooks/ansible.py",
+      binary-to-ascii(16, 8, ":", substring(hardware, 1, 6)),
+      binary-to-ascii(10, 8, ".", leased-address),
+      pick-first-value(option host-name, "none"),
+      "{{ dhcpConfig['domainName'] | default('example.org') }}");
+  }
 
 {% for host in groups['all'] %}
 {% if hostvars[host]['ansible_default_ipv4'] is defined %}
