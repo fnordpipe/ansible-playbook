@@ -1,0 +1,10 @@
+[DEFAULT]
+main-repo = {{ commonConfig['gentoo']['main-repo'] }}
+
+{% for overlay in commonConfig['gentoo']['repos'] %}
+[{{ overlay['name'] }}]
+location = {{ overlay['location'] }}
+sync-type = {{ overlay['sync-type'] }}
+sync-uri = {{ overlay['sync-uri'] }}
+auto-sync = yes
+{% endfor %}

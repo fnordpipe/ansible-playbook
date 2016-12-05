@@ -1,0 +1,7 @@
+---
+- name: assign bind role
+  hosts: bind
+  remote_user: root
+
+  roles:
+  - bind

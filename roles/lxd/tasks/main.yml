@@ -1,33 +1,4 @@
 ---
-# dom0 setup
-
-- name: install lxc packages
-  portage:
-    package: "{{ item }}"
-    quiet: yes
-    getbinpkg: yes
-    state: present
-  with_items:
-    - app-emulation/lxc
-    - app-emulation/lxc-templates
-    - dev-python/python2-lxc
-    - net-misc/bridge-utils
-
-- name: create /etc/lxc/config and /var/lib/lxc
-  file:
-    dest: "{{ item }}"
-    owner: root
-    group: root
-    mode: 0750
-    state: directory
-  with_items:
-    - /etc/lxc/config
-    - /var/lib/lxc
-
-- name: loop lxc group
-  include: lxc.yml
-  with_items: "{{ groups[lxdGroup] }}"
-  loop_control:
-    loop_var: lxcItem
-  vars:
-    lxdGroup: "lxd-{{ inventory_hostname }}"
+- name: include gentoo definition
+  include: gentoo/main.yml
+  when: ansible_distribution == 'Gentoo'

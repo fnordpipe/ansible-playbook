@@ -1,0 +1,28 @@
+---
+# dom0 setup
+
+- name: install xen packages
+  portage:
+    package: "{{ item }}"
+    quiet: yes
+    getbinpkg: yes
+    state: present
+  with_items:
+    - app-emulation/xen
+    - app-emulation/xen-templates
+
+- name: create /etc/xen/config
+  file:
+    dest: /etc/xen/config
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: loop dom0 group
+  include: domU.yml
+  with_items: "{{ groups[dom0Group] }}"
+  loop_control:
+    loop_var: domUItem
+  vars:
+    dom0Group: "dom0-{{ inventory_hostname }}"

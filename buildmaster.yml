@@ -1,8 +1,0 @@
----
-# assign buildmaster role
-- name: assign buildmaster role
-  hosts: buildmaster
-  remote_user: root
-
-  roles:
-  - buildmaster

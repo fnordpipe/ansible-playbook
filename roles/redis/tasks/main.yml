@@ -1,27 +1,4 @@
 ---
-- name: install packages
-  portage:
-    name: dev-db/redis
-    getbinpkg: yes
-    quiet: yes
-
-- name: update config
-  template:
-    src: etc/redis.conf.j2
-    dest: /etc/redis.conf
-    owner: root
-    group: redis
-    mode: 0640
-  notify:
-    - restart redis
-
-- name: link initscript
-  file:
-    src: /etc/init.d/redis
-    dest: /etc/runlevels/default/redis
-    state: link
-
-- name: start service
-  service:
-    name: redis
-    state: started
+- name: include gentoo definition
+  include: gentoo/main.yml
+  when: ansible_distribution == 'Gentoo'

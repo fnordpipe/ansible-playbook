@@ -1,0 +1,28 @@
+---
+- name: install dns
+  portage:
+    package: net-dns/bind
+    quiet: yes
+    getbinpkg: yes
+    state: present
+
+- name: update dns config
+  template:
+    src: gentoo/etc/bind/named.conf.j2
+    dest: /etc/bind/named.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart dns
+
+- name: update zone files
+  template:
+    src: gentoo/etc/bind/pri/named.zone.j2
+    dest: /etc/bind/pri/{{ item['key'] }}.zone
+    owner: root
+    group: root
+    mode: 0644
+  with_dict: "{{ groups['all'] | groupZones(hostvars) | combine(bindConfig['internal']['zones']) }}"
+  notify:
+    - reload dns

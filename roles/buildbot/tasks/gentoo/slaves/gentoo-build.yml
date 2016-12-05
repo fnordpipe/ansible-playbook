@@ -1,0 +1,20 @@
+---
+- name: install packages
+  portage:
+    name: dev-util/buildbot-gentoo-env
+    getbinpkg: yes
+    quiet: yes
+
+- name: update publisher config
+  lineinfile:
+    dest: "{{ item.dest }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    create: yes
+  vars:
+    buildbotRsyncHost: "{{ (((buildbotConfig['slave'] | default({}))['profiles'] | default({}))['gentoo-build'] | default({}))['rsyncHost'] | default('') }}"
+    buildbotHttpHost: "{{ (((buildbotConfig['slave'] | default({}))['profiles'] | default({}))['gentoo-build'] | default({}) | default({}))['httpHost'] | default('') }}"
+  with_items:
+    - { dest: /etc/rsyncPublish.cfg, regexp: '^rsyncHost=.*$', line: "rsyncHost={{ buildbotRsyncHost }}" }
+    - { dest: /etc/httpPublish.cfg, regexp: '^httpHost=.*$', line: "httpHost={{ buildbotHttpHost }}" }

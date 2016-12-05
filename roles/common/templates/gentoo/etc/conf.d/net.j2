@@ -1,0 +1,27 @@
+{% if commonConfig['network']['interfaces'] is defined %}
+{% set interfaces = commonConfig['network']['interfaces'] %}
+{% for key, interface in interfaces.iteritems() %}
+{% if interface['ipv4addr'] is defined and interface['subnet'] is defined %}
+config_{{ key }}="{{ interface['ipv4addr'] }}{{ interface['subnet']}}"
+{% else %}
+config_{{ key }}="{{ interface['ipv4addr'] | default('dhcp') }}"
+{% endif %}
+{% if interface['ipv4route'] is defined %}
+routes_{{ key }}="default via {{ interface['ipv4route'] }}"
+{% endif %}
+{% if interface['bridge'] is defined %}
+bridge_{{ key }}="{{ interface['bridge'] }}"
+brctl_{{ key }}="
+  setfd 0
+  sethello 10
+  stp off
+"
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if commonConfig['network']['nsServer'] is defined %}
+dns_servers_{{ ansible_default_ipv4['interface'] }}="{{ commonConfig['network']['nsServer'] | join(' ') }}"
+dns_domain_{{ ansible_default_ipv4['interface'] }}="{{ inventory_hostname | getDomain }}"
+dns_search_{{ ansible_default_ipv4['interface'] }}="{{ inventory_hostname | getDomain }}"
+{% endif %}

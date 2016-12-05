@@ -1,0 +1,40 @@
+---
+- name: install dhcpd
+  portage:
+    package: "{{ item }}"
+    quiet: yes
+    getbinpkg: yes
+    state: present
+  with_items:
+    - net-misc/dhcp
+    - net-misc/dhcp-ansible
+
+- name: set interface for dhcpd
+  lineinfile:
+    dest: /etc/conf.d/dhcpd
+    regexp: '(# )?DHCPD_IFACE=".*"'
+    line: DHCPD_IFACE="{{ dhcpdConfig['interface'] }}"
+
+- name: update dhcpd config
+  template:
+    src: gentoo/etc/dhcp/dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart dhcpd
+
+- name: update hook config
+  template:
+    src: generic/etc/dhcp/ansible.ini.j2
+    dest: /etc/dhcp/ansible.ini
+    owner: root
+    group: dhcp
+    mode: 0640
+
+- name: enable dhcpd
+  service:
+    name: dhcpd
+    enabled: yes
+    state: started

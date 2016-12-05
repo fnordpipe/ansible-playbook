@@ -1,8 +1,0 @@
----
-# assign buildslave role
-- name: assign buildslave role
-  hosts: buildslave
-  remote_user: root
-
-  roles:
-  - buildslave

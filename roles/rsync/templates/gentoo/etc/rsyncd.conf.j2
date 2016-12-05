@@ -1,0 +1,17 @@
+# /etc/rsyncd.conf
+
+pid file = /run/rsyncd.pid
+
+use chroot = yes
+read only = yes
+
+uid = nobody
+gid = nobody
+
+{% if rsyncConfig['repos'] is defined %}
+{% for repo in rsyncConfig['repos'] %}
+[{{ repo['name'] }}]
+path = /var/lib/rsync/{{ repo['name'] }}
+comment = {{ repo['description'] }}
+{% endfor %}
+{% endif %}

@@ -1,20 +1,11 @@
 ---
-# global ansible role assignment
-
-- include: common.yml
-- include: gentoo.yml
+- include: buildbot.yml
 - include: dom0.yml
-- include: lxd.yml
-- include: dhcpd.yml
-- include: dns.yml
-
 - include: git.yml
-- include: rsync.yml
-- include: webserver.yml
-- include: dirlisting.yml
-- include: buildmaster.yml
-- include: buildslave.yml
-- include: buildslave_gentoo.yml
-- include: buildslave_ansible.yml
+- include: lxd.yml
+- include: nginx.yml
 - include: redis.yml
+- include: rsync.yml
 - include: slapd.yml
+- include: bind.yml
+- include: dhcpd.yml

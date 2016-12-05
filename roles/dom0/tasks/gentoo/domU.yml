@@ -1,0 +1,27 @@
+---
+# comment
+
+- name: copy domU config of {{ domUItem }}
+  template:
+    src: generic/etc/xen/config/domU.config.j2
+    dest: /etc/xen/config/{{ domUItem.split('.')[0] }}.config
+    owner: root
+    group: root
+    mode: 0600
+  vars:
+    domUMac: "{{ dom0Config['macprefix'] | default('de:ad:be:ef') }}:{{ domUItem | hash('md5') | regex_replace('^([0-9a-f]{2}).*([0-9a-f]{2})$', '\\1:\\2') }}"
+
+- name: create logical volume of {{ domUItem }}
+  lvol:
+    vg: "{{ domUItem.split('.')[1] }}"
+    lv: "{{ domUItem.split('.')[0] }}"
+    size: "{{ hostvars[domUItem]['dom0Config']['lvSize'] | default('10g') }}"
+    state: present
+
+- name: create dom'U {{ domUItem }}
+  xen_xl:
+    config: /etc/xen/config/{{ domUItem.split('.')[0] }}.config
+    name: "{{ domUItem.split('.')[0] }}"
+    template: "{{ hostvars[domUItem]['dom0Config']['template'] }}"
+    template_args: "--iface={{ hostvars[domUItem]['commonConfig']['network']['default'] | default('eth0') }} --bridge={{ hostvars[domUItem]['domUConfig']['bridge'] | default('br0') }}"
+    state: started

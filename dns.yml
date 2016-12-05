@@ -1,8 +1,0 @@
----
-# assign dns role
-- name: assign dns role
-  hosts: dns
-  remote_user: root
-
-  roles:
-  - dns

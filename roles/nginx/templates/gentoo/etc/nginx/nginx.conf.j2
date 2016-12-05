@@ -1,0 +1,16 @@
+user nginx nginx;
+worker_processes {{ (nginxConfig | default({}))['worker_processes'] | default('2') }};
+
+events {
+  worker_connections {{ (nginxConfig | default({}))['worker_connections'] | default('1024') }};
+}
+
+http {
+  include mime.types;
+  default_type application/octet-stream;
+  sendfile on;
+  keepalive_timeout 65;
+  gzip on;
+
+  include conf.d/*.conf;
+}

@@ -1,5 +1,4 @@
 ---
-# assign dom0 role
 - name: assign dom0 role
   hosts: dom0
   remote_user: root

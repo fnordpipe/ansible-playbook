@@ -1,8 +1,0 @@
----
-# common configuration of gentoo hosts
-- name: assign gentoo role
-  hosts: gentoo
-  remote_user: root
-
-  roles:
-  - gentoo
