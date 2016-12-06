@@ -1,0 +1,61 @@
+---
+- name: install packages
+  portage:
+    name: net-nds/openldap
+    getbinpkg: yes
+    quiet: yes
+
+- name: create /etc/openldap/slapd.conf
+  template:
+    src: gentoo/etc/openldap/slapd.conf.j2
+    dest: /etc/openldap/slapd.conf
+    owner: root
+    group: ldap
+    mode: 0640
+
+- name: create /etc/conf.d/slapd
+  copy:
+    src: gentoo/etc/conf.d/slapd.j2
+    dest: /etc/conf.d/slapd
+    owner: root
+    group: root
+    mode: 0640
+
+- name: create directories
+  file:
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    state: directory
+  with_items:
+    - { dest: /etc/openldap/slapd.d, owner: ldap, group: ldap, mode: 750 }
+    - { dest: /var/lib/slapd, owner: ldap, group: ldap, mode: 750 }
+
+- name: run slaptest
+  command: slaptest -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
+  args:
+    creates: /etc/openldap/slapd.d/cn=config.ldif
+  register: slapdCreate
+
+- name: set permissions
+  file:
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    recurse: yes
+    state: directory
+  with_items:
+    - { dest: /etc/openldap/slapd.d, owner: ldap, group: ldap }
+    - { dest: /var/lib/slapd, owner: ldap, group: ldap }
+
+- name: link initscript
+  file:
+    src: /etc/init.d/slapd
+    dest: /etc/runlevels/default/slapd
+    state: link
+
+- name: start service
+  service:
+    name: slapd
+    state: started

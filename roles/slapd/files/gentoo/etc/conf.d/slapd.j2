@@ -1,0 +1,4 @@
+#
+INSTANCE="openldap${SVCNAME#slapd}"
+OPTS_CONF="-F /etc/${INSTANCE}/slapd.d"
+OPTS="${OPTS_CONF} -h 'ldaps:// ldap:// ldapi://%2frun%2fslapd.sock'"

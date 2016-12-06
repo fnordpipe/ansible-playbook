@@ -17,3 +17,4 @@
 - include: buildslave_gentoo.yml
 - include: buildslave_ansible.yml
 - include: redis.yml
+- include: slapd.yml

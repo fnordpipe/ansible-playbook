@@ -1,0 +1,25 @@
+#
+include /etc/openldap/schema/core.schema
+include /etc/openldap/schema/cosine.schema
+include /etc/openldap/schema/inetorgperson.schema
+include /etc/openldap/schema/nis.schema
+include /etc/openldap/schema/misc.schema
+
+pidfile   /run/slapd.pid
+argsfile  /run/slapd.args
+
+modulepath  /usr/lib64/openldap/openldap
+moduleload  back_mdb
+
+database  mdb
+directory	/var/lib/slapd
+maxsize   1073741824
+suffix    "{{ slapdConfig['db']['mdb']['suffix'] }}"
+rootdn		"cn=root,{{ slapdConfig['db']['mdb']['suffix'] }}"
+rootpw    {{ slapdConfig['db']['mdb']['rootpw'] }}
+
+index	objectClass	eq
+
+database  config
+rootdn    "cn=root,cn=config"
+rootpw    {{ slapdConfig['db']['config']['rootpw'] }}
