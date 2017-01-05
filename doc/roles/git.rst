@@ -19,6 +19,15 @@ dependencies
 variables
 ---------
 
+.. code-block:: yaml
+   authConfig:
+    # required: yes
+    # description: private ssh key for git auth
+    sshKey: |
+      your
+      private
+      key
+
 .. code-block:: json
    'gitConfig' {
     // required: no
@@ -32,6 +41,11 @@ variables
         // required: yes
         // description: description of repo
         'description': 'lorem ipsum dolor sit amet',
+        // required: no
+        // description: list of mirrors
+        'mirrors': [
+          'user@host:repo.git'
+        ],
         // required: yes
         // description: name of repo
         'name': 'bla',

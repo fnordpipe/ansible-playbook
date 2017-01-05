@@ -18,16 +18,16 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   with_items:
-    - { src: generic/etc/nginx/conf.d/cgit.conf.j2, dest: /etc/nginx/conf.d/cgit.conf, owner: root, group: root, mode: 644 }
+    - { src: gentoo/etc/nginx/conf.d/cgit.conf.j2, dest: /etc/nginx/conf.d/cgit.conf, owner: root, group: root, mode: 644 }
     - { src: gentoo/etc/conf.d/spawn-fcgi.j2, dest: /etc/conf.d/spawn-fcgi.cgit, owner: root, group: root, mode: 644 }
-    - { src: generic/etc/cgitrc.j2, dest: /etc/cgitrc, owner: root, group: root, mode: 644 }
+    - { src: gentoo/etc/cgitrc.j2, dest: /etc/cgitrc, owner: root, group: root, mode: 644 }
   notify:
     - restart webserver
 
 - name: set initscript symlink
   file:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
     state: link
   with_items:
     - { src: spawn-fcgi, dest: /etc/init.d/spawn-fcgi.cgit }
@@ -53,37 +53,34 @@
     user: git
     key: "{{ item }}"
     state: present
-  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['sshPubKeys'] | default([]) }}"
+  with_items: "{{ gitConfig['sshPubKeys'] | default([]) }}"
 
-- name: update git categories
-  file:
-    dest: "/var/lib/git/{{ item.category }}"
+- name: copy private key
+  copy:
+    content: "{{ authConfig['sshKey'] }}"
+    dest: /var/lib/git/.ssh/mirror.key
     owner: git
     group: git
-    mode: 0755
-    state: directory
-  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
+    mode: 0600
+  when: authConfig is defined
 
-- name: update repositories
-  command: "git init --bare /var/lib/git/{{ item.category }}/{{ item.name }}.git"
-  args:
-    chdir: /var/lib/git
-    creates: "/var/lib/git/{{ item.category }}/{{ item.name }}.git"
-  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
-
-- name: update repo config
-  template:
-    src: generic/var/lib/git/cgitrc.j2
-    dest: "/var/lib/git/{{ item.category }}/{{ item.name }}.git/cgitrc"
+- name: create ssh config
+  lineinfile:
+    dest: /var/lib/git/.ssh/config
+    regexp: "{{ item['regexp'] }}"
+    line: "{{ item['line'] }}"
     owner: git
     group: git
-    mode: 0644
-  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
+    mode: 0600
+    state: present
+    create: yes
+  with_items:
+    - { regexp: '^StrictHostKeyChecking .*$', line: StrictHostKeyChecking no }
+    - { regexp: '^IdentityFile .*$', line: IdentityFile ~/.ssh/mirror.key }
+  when: authConfig is defined
 
-- name: update permissions
-  file:
-    dest: "/var/lib/git/{{ item.category }}"
-    owner: git
-    group: git
-    recurse: yes
-  with_items: "{{ hostvars[inventory_hostname]['gitConfig']['repos'] | default([]) }}"
+- name: create repo config
+  include: repo.yml
+  with_items: "{{ gitConfig['repos'] | default([]) }}"
+  loop_control:
+    loop_var: gitItem
