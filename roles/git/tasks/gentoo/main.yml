@@ -22,7 +22,7 @@
     - { src: gentoo/etc/conf.d/spawn-fcgi.j2, dest: /etc/conf.d/spawn-fcgi.cgit, owner: root, group: root, mode: 644 }
     - { src: gentoo/etc/cgitrc.j2, dest: /etc/cgitrc, owner: root, group: root, mode: 644 }
   notify:
-    - restart webserver
+    - restart nginx
 
 - name: set initscript symlink
   file:

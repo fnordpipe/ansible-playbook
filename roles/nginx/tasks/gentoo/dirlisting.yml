@@ -24,7 +24,7 @@
     group: root
     mode: 0644
   notify:
-    - restart webserver
+    - restart nginx
 
 - name: update authorized_keys
   authorized_key:
