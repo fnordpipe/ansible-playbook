@@ -1,5 +1,5 @@
-webserver
-=========
+nginx
+=====
 
 description
   Robust, small and high performance http and reverse proxy server

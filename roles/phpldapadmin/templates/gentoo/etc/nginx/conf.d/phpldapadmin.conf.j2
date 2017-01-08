@@ -1,0 +1,26 @@
+server {
+  listen 80;
+  #listen 443 ssl;
+  server_name {{ inventory_hostname }};
+
+  access_log /var/log/nginx/{{ inventory_hostname }}.access.log;
+  error_log /var/log/nginx/{{ inventory_hostname }}.error.log warn;
+
+  #ssl_certificate /usr/local/ssl/{{ inventory_hostname }}.crt.pem;
+  #ssl_certificate_key /usr/local/ssl/{{ inventory_hostname }}.key.pem;
+  #ssl_dhparam /usr/local/ssl/{{ inventory_hostname }}.dh.pem;
+  #ssl_protocols TLSv1.2;
+  #ssl_prefer_server_ciphers on;
+  #ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES128+EECDH:AES128+EDH;
+  #ssl_session_timeout 5m;
+  #ssl_session_cache shared:SSL:50m;
+
+  root /usr/share/webapps/phpldapadmin/1.2.3-r1/htdocs/htdocs;
+  index index.php;
+
+  location ~ \.php$ {
+    try_files $uri =404;
+    include /etc/nginx/fastcgi.conf;
+    fastcgi_pass unix:/run/php-fpm.sock;
+  }
+}

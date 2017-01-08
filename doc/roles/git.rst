@@ -14,7 +14,7 @@ dependencies
 ------------
 
 - common
-- webserver
+- nginx
 
 variables
 ---------
