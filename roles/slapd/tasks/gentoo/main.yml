@@ -5,6 +5,28 @@
     getbinpkg: yes
     quiet: yes
 
+- name: hash slapd mdb password
+  command: bash -c "slappasswd -h '{CRYPT}' -s '{{ slapdConfig['db']['mdb']['password'] }}' > /etc/openldap/.slapdDbMdbPasswordHash"
+  args:
+    creates: /etc/openldap/.slapdDbMdbPasswordHash
+  changed_when: false
+
+- name: hash slapd config password
+  command: bash -c "slappasswd -h '{CRYPT}' -s '{{ slapdConfig['db']['config']['password'] }}' > /etc/openldap/.slapdDbConfigPasswordHash"
+  args:
+    creates: /etc/openldap/.slapdDbConfigPasswordHash
+  changed_when: false
+
+- name: read mdb password hash
+  command: cat /etc/openldap/.slapdDbMdbPasswordHash
+  register: slapdDbMdbPasswordHash
+  changed_when: false
+
+- name: read config password hash
+  command: cat /etc/openldap/.slapdDbConfigPasswordHash
+  register: slapdDbConfigPasswordHash
+  changed_when: false
+
 - name: create /etc/openldap/slapd.conf
   template:
     src: gentoo/etc/openldap/slapd.conf.j2
@@ -32,11 +54,15 @@
     - { dest: /etc/openldap/slapd.d, owner: ldap, group: ldap, mode: 750 }
     - { dest: /var/lib/slapd, owner: ldap, group: ldap, mode: 750 }
 
-- name: run slaptest
+- name: create slapd database
+  command: "bash -c 'echo | slapadd -f /etc/openldap/slapd.conf'"
+  args:
+    creates: /var/lib/slapd/data.mdb
+
+- name: create slapd.d directory
   command: slaptest -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d
   args:
     creates: /etc/openldap/slapd.d/cn=config.ldif
-  register: slapdCreate
 
 - name: set permissions
   file:
