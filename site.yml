@@ -7,5 +7,6 @@
 - include: redis.yml
 - include: rsync.yml
 - include: slapd.yml
-- include: bind.yml
+- include: phpldapadmin.yml
 - include: dhcpd.yml
+- include: bind.yml
