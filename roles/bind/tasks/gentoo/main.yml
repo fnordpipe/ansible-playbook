@@ -1,12 +1,48 @@
 ---
-- name: install dns
+- name: install bind
   portage:
-    package: net-dns/bind
+    package: "{{ item }}"
     quiet: yes
     getbinpkg: yes
     state: present
+  with_items:
+    - net-dns/bind
+    - net-dns/bind-tools
 
-- name: update dns config
+- name: set owner for /var/bind/dyn
+  file:
+    dest: /var/bind/dyn
+    owner: named
+    group: named
+    mode: 0750
+    state: directory
+
+- name: create dynamic zone files
+  template:
+    src: gentoo/etc/bind/pri/domain.zone.j2
+    dest: /etc/bind/dyn/{{ item['key'] }}.zone
+    owner: named
+    group: root
+    mode: 0644
+    force: no
+  with_dict: "{{ groups['all'] | groupZones(hostvars) }}"
+  notify:
+    - reload bind
+
+- name: create static zone files
+  template:
+    src: gentoo/etc/bind/pri/domain.zone.j2
+    dest: /etc/bind/pri/{{ item['key'] }}.zone
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    - bindStaticZone: True
+  with_dict: "{{ bindConfig['internal']['zones'] }}"
+  notify:
+    - reload bind
+
+- name: create dns config
   template:
     src: gentoo/etc/bind/named.conf.j2
     dest: /etc/bind/named.conf
@@ -14,15 +50,27 @@
     group: root
     mode: 0644
   notify:
-    - restart dns
+    - restart bind
 
-- name: update zone files
+- name: create initscript symlinks
+  file:
+    src: /etc/init.d/named
+    dest: /etc/runlevels/default/named
+    state: link
+
+- name: start initscript
+  service:
+    name: named
+    state: started
+
+- name: create nsupdate script
   template:
-    src: gentoo/etc/bind/pri/named.zone.j2
-    dest: /etc/bind/pri/{{ item['key'] }}.zone
+    src: gentoo/etc/bind/dns.nsupdate.j2
+    dest: /etc/bind/dns.nsupdate
     owner: root
     group: root
-    mode: 0644
-  with_dict: "{{ groups['all'] | groupZones(hostvars) | combine(bindConfig['internal']['zones']) }}"
-  notify:
-    - reload dns
+    mode: 0600
+
+- name: create record for {{ inventory_hostname }}
+  command: "nsupdate -v -y hmac-md5:ddns-key:{{ bindConfig['ddns-key'] }} /etc/bind/dns.nsupdate"
+  changed_when: false

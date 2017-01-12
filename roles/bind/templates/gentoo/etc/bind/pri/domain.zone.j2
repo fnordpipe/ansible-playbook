@@ -10,6 +10,8 @@ $TTL 2D
 
 @ IN NS {{ bindConfig['soaNs'] }}.
 
+{% if bindStaticZone is defined %}
 {% for record in item['value'] %}
 {{ record['name'] }} IN {{ record['type'] }} {{ record['data'] }}
 {% endfor %}
+{% endif %}

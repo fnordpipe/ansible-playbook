@@ -28,6 +28,9 @@ variables
 .. code-block:: json
    'bindConfig': {
     // required: yes
+    // description: rdnc key for dynamic dns updates
+    'ddns-key': '<string>',
+    // required: yes
     // description:
     'internal': {
       // required: yes
