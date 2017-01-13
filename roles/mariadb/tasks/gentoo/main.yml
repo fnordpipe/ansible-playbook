@@ -6,6 +6,7 @@
     getbinpkg: yes
   with_items:
     - dev-db/mariadb
+    - dev-python/mysql-python
 
 - name: stat /var/lib/mysql/mysql/user.MYD
   stat:
@@ -15,9 +16,8 @@
 - name: set initial root password
   lineinfile:
     dest: /etc/mysql/my.cnf
-    insertafter: "^[mysql]$"
-    regexp: "^password = .*$"
-    line: "password = {{ mariadbConfig['user']['root']['password'] }}"
+    insertafter: '^\[mysql\]$'
+    line: "password = {{ mariadbConfig['password'] }}"
     state: present
   when: mariadbInitialized.stat.exists == False
 
@@ -26,12 +26,11 @@
   args:
     creates: /var/lib/mysql/mysql/user.MYD
 
-- name: set initial root password
+- name: clear initial root password
   lineinfile:
     dest: /etc/mysql/my.cnf
-    insertafter: "^[mysql]$"
-    regexp: "^password = .*$"
-    line: "password = {{ mariadbConfig['user']['root']['password'] }}"
+    insertafter: '^\[mysql\]$'
+    line: "password = {{ mariadbConfig['password'] }}"
     state: absent
 
 - name: create initscript symlinks
@@ -44,3 +43,14 @@
   service:
     name: mysql
     state: started
+
+- name: create database user
+  mysql_user:
+    name: "{{ item['key'] }}"
+    host: "{{ item['value']['host'] | default('%')}}"
+    password: "{{ item['value']['password'] }}"
+    priv: "{{ item['key'] }}_*.*:ALL"
+    state: present
+    login_user: root
+    login_password: "{{ mariadbConfig['password'] }}"
+  with_dict: "{{ (mariadbConfig | default({}))['user'] | default({}) }}"
