@@ -28,6 +28,9 @@ variables
 .. code-block:: json
    'dhcpdConfig': {
     // required: yes
+    // description: rdnc key for dynamic dns updates
+    'ddns-key': '<string>',
+    // required: yes
     // description: interface to listen on
     'interface': 'eth0',
     'cache': {

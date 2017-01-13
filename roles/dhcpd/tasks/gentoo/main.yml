@@ -7,7 +7,7 @@
     state: present
   with_items:
     - net-misc/dhcp
-    - net-misc/dhcp-ansible
+    - net-dns/bind-tools
 
 - name: set interface for dhcpd
   lineinfile:
@@ -25,16 +25,20 @@
   notify:
     - restart dhcpd
 
-- name: update hook config
-  template:
-    src: generic/etc/dhcp/ansible.ini.j2
-    dest: /etc/dhcp/ansible.ini
-    owner: root
-    group: dhcp
-    mode: 0640
-
-- name: enable dhcpd
+- name: start initscript
   service:
     name: dhcpd
     enabled: yes
     state: started
+
+- name: create nsupdate script
+  template:
+    src: gentoo/etc/dhcp/dhcp.nsupdate.j2
+    dest: /etc/dhcp/dhcp.nsupdate
+    owner: root
+    group: root
+    mode: 0600
+
+- name: create record for {{ inventory_hostname }} 
+  command: "nsupdate -v -y hmac-md5:ddns-key:{{ dhcpdConfig['ddns-key'] }} /etc/dhcp/dhcp.nsupdate"
+  changed_when: false
