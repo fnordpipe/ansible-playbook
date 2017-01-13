@@ -20,10 +20,16 @@ variables
 
 .. code-block:: json
    'mariadbConfig' {
+    // required: yes
+    // description: password of root user
+    'password': '<string>',
     'user': {
-      'root': {
+      '<string>': {
+        // required: no
+        // description: host part of mariadb user
+        'host': '<string>',
         // required: yes
-        // description: password for root user
+        // description: password of user
         'password': '<string>'
       }
     }
