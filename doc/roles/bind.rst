@@ -19,8 +19,7 @@ groups
 ------
 
 all
-  all hosts will be written to dns zone file
-  to assign a static ip
+  the dynamic zones will be created by gathering all fqdn's based on the inventory.
 
 variables
 ---------
