@@ -44,12 +44,20 @@
     name: mysql
     state: started
 
-- name: create database user
+- name: create user
   mysql_user:
     name: "{{ item['key'] }}"
     host: "{{ item['value']['host'] | default('%')}}"
     password: "{{ item['value']['password'] }}"
-    priv: "{{ item['key'] }}_*.*:ALL"
+    priv: "{{ item['key'] }}.*:ALL"
+    state: present
+    login_user: root
+    login_password: "{{ mariadbConfig['password'] }}"
+  with_dict: "{{ (mariadbConfig | default({}))['user'] | default({}) }}"
+
+- name: create database
+  mysql_db:
+    name: "{{ item['key'] }}"
     state: present
     login_user: root
     login_password: "{{ mariadbConfig['password'] }}"
