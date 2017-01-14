@@ -4,6 +4,7 @@
 - include: git.yml
 - include: lxd.yml
 - include: nginx.yml
+- include: rabbitmq.yml
 - include: redis.yml
 - include: rsync.yml
 - include: slapd.yml
