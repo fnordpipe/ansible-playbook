@@ -1,0 +1,33 @@
+---
+- name: install packages
+  portage:
+    name: "{{ item }}"
+    quiet: yes
+    getbinpkg: yes
+  with_items:
+    - dev-db/postgresql
+
+- name: stat /var/lib/postgresql/9.5
+  stat:
+    path: /var/lib/postgresql/9.5
+  register: postgresqlInitialized
+
+- name: enable unattanded configuration
+  lineinfile:
+    dest: /etc/conf.d/postgresql-9.5
+    regexp: '^correct=true$'
+    line: 'correct=true'
+    state: present
+  when: postgresqlInitialized.stat.exists == False
+
+- name: create database
+  command: emerge --config dev-db/postgresql
+  args:
+    creates: /var/lib/postgresql/9.5
+
+- name: clear unattaneded configuration
+  lineinfile:
+    dest: /etc/conf.d/postgresql-9.5
+    regexp: '^correct=true$'
+    line: 'correct=true'
+    state: absent
