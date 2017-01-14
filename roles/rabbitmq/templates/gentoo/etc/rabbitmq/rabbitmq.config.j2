@@ -147,16 +147,16 @@
    %%
 
     {default_vhost,       <<"/">>},
-    {default_user,        <<"{{ rabbitmqConfig['user'] }}">>},
+    {default_user,        <<"root">>},
     {default_pass,        <<"{{ rabbitmqConfig['password'] }}">>},
-    {default_permissions, [<<".*">>, <<".*">>, <<".*">>]}
+    {default_permissions, [<<".*">>, <<".*">>, <<".*">>]},
 
    %% Tags for default user
    %%
    %% For more details about tags, see the documentation for the
    %% Management Plugin at http://www.rabbitmq.com/management.html.
    %%
-   %% {default_user_tags, [administrator]},
+    {default_user_tags, [administrator]}
 
    %%
    %% Additional network and protocol related configuration

@@ -1,0 +1,19 @@
+---
+- name: "create virtual host /{{ rabbitmqItem['key'] }}"
+  rabbitmq_vhost:
+    name: "/{{ rabbitmqItem['key'] }}"
+    node: "{{ rabbitmqConfig['name'] }}"
+    state: present
+
+- name: "create user of virtual host /{{ rabbitmqItem['key'] }}"
+  rabbitmq_user:
+    name: "{{ item['username'] }}"
+    password: "{{ item['password'] }}"
+    node: "{{ rabbitmqConfig['name'] }}"
+    permissions:
+      - vhost: "/{{ rabbitmqItem['key'] }}"
+        read_priv: .*
+        write_priv: .*
+        configure_priv: .*
+    state: present
+  with_items: "{{ rabbitmqItem['value']['user'] }}"

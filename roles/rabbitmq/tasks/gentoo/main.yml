@@ -43,6 +43,12 @@
     state: started
 
 - name: enable management plugin
-  command: rabbitmq-plugins enable rabbitmq_management
-  register: rabbitmqPlugin
-  changed_when: rabbitmqPlugin.stdout.find('nothing to do') == False
+  rabbitmq_plugin:
+    names: rabbitmq_management
+    state: enabled
+
+- name: loop virtual hosts
+  include: vhost.yml
+  loop_control:
+    loop_var: rabbitmqItem
+  with_dict: "{{ (rabbitmqConfig | default({}))['vhosts'] | default({}) }}"

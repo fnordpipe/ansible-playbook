@@ -25,9 +25,22 @@ variables
     // description: node name
     'name': '<string>',
     // required: yes
-    // description: default username
-    'user': '<string>',
-    // required: yes
     // description: password of default user
     'password': '<string>'
+    // required: no
+    // description: list of virtual hosts
+    'vhosts': {
+      '<string>': {
+        'user': [
+          {
+            // required: yes
+            // description: name of user
+            'username': '<string>',
+            // required: yes
+            // description: password of user
+            'password': '<string>'
+          }
+        ]
+      }
+    }
    }
