@@ -3,3 +3,8 @@
   service:
     name: postgresql-9.5
     state: restarted
+
+- name: reload postgresql
+  service:
+    name: postgresql-9.5
+    state: reloaded

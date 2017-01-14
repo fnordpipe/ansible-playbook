@@ -31,3 +31,31 @@
     regexp: '^correct=true$'
     line: 'correct=true'
     state: absent
+
+- name: create config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: postgres
+    group: postgres
+    mode: 0600
+  with_items:
+    - { src: gentoo/etc/postgresql-9.5/postgresql.conf.j2, dest: /etc/postgresql-9.5/postgresql.conf }
+    - { src: gentoo/etc/postgresql-9.5/pg_hba.conf.j2, dest: /etc/postgresql-9.5/pg_hba.conf }
+  notify:
+    - reload postgresql
+
+- name: create initscript symlinks
+  file:
+    src: /etc/init.d/postgresql-9.5
+    dest: /etc/runlevels/default/postgresql-9.5
+    state: link
+
+- name: start initscript
+  service:
+    name: postgresql-9.5
+    state: started
+
+- name: set postgres password
+  command: psql -U postgres -c "ALTER USER postgres WITH PASSWORD '{{ postgresqlConfig['password'] }}';"
+  changed_when: false
