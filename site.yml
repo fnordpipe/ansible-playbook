@@ -8,6 +8,7 @@
 - include: rsync.yml
 - include: slapd.yml
 - include: phpldapadmin.yml
+- include: phpmyadmin.yml
 - include: mariadb.yml
 - include: bind.yml
 - include: dhcpd.yml
