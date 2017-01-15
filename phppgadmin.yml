@@ -1,0 +1,7 @@
+---
+- name: assign phppgadmin role
+  hosts: phppgadmin
+  remote_user: root
+
+  roles:
+  - phppgadmin

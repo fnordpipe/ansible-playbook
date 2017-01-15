@@ -10,6 +10,7 @@
 - include: slapd.yml
 - include: phpldapadmin.yml
 - include: phpmyadmin.yml
+- include: phppgadmin.yml
 - include: postgresql.yml
 - include: mariadb.yml
 - include: bind.yml
