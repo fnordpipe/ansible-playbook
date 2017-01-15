@@ -6,6 +6,7 @@
     getbinpkg: yes
   with_items:
     - dev-db/postgresql
+    - dev-python/psycopg
 
 - name: stat /var/lib/postgresql/9.5
   stat:
@@ -59,3 +60,22 @@
 - name: set postgres password
   command: psql -U postgres -c "ALTER USER postgres WITH PASSWORD '{{ postgresqlConfig['password'] }}';"
   changed_when: false
+
+- name: create databases
+  postgresql_db:
+    name: "{{ item['name'] }}"
+  with_items: "{{ (postgresqlConfig | default([]))['user'] | default([]) }}"
+
+- name: create user
+  postgresql_user:
+    name: "{{ item['name'] }}"
+    db: "{{ item['name'] }}"
+    password: "{{ item['password'] }}"
+    priv: ALL
+  with_items: "{{ (postgresqlConfig | default([]))['user'] | default([]) }}"
+
+- name: set database ownership
+  postgresql_db:
+    name: "{{ item['name'] }}"
+    owner: "{{ item['name'] }}"
+  with_items: "{{ (postgresqlConfig | default([]))['user'] | default([]) }}"
