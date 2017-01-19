@@ -1,0 +1,56 @@
+{
+  "signing": {
+    "default": {
+      "usages": [
+        "digital signature",
+        "cert sign",
+        "crl sign",
+        "signing"
+      ],
+      "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['generic'] | default('17520h') }}",
+      "is_ca": true
+    },
+    "profiles": {
+      "rootca": {
+        "auth_key": "key1",
+        "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['rootca'] | default('438000h') }}",
+        "is_ca": true,
+        "usages": [
+          "digital signature",
+          "cert sign",
+          "crl sign",
+          "signing" 
+        ]
+      },
+      "subca": {
+        "auth_key": "key1",
+        "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['subca'] | default('219000h') }}",
+        "is_ca": true,
+        "usages": [
+          "digital signature",
+          "cert sign",
+          "crl sign",
+          "signing" 
+        ]
+      },
+      "server": {
+        "auth_key": "key2",
+        "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['generic'] | default('17520h') }}",
+        "usages": [
+          "digital signature",
+          "server auth"
+        ]
+      }
+    }
+  },
+  "auth_keys": {
+    "key1": {
+      "key": "{{ cfsslConfig['key1'] }}",
+      "type": "standard"
+    },
+    "key2": {
+      "key": "{{ cfsslConfig['key2'] }}",
+      "type": "standard"
+    }
+  }
+}

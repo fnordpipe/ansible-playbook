@@ -1,0 +1,7 @@
+---
+- name: assign cfssl role
+  hosts: cfssl
+  remote_user: root
+
+  roles:
+  - cfssl

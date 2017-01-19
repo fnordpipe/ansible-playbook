@@ -1,0 +1,24 @@
+{
+  "signing": {
+    "default": {
+      "auth_key": "key1",
+      "expiry": "{{ nginxConfig['expiry'] | default('17520h') }}",
+      "usages": [
+        "digital signature",
+        "server auth"
+      ]{% if inventory_hostname not in groups['cfssl'] %},
+      "remote": "caserver"
+{% endif %}
+    }
+  },
+  "auth_keys": {
+    "key1": {
+      "key": "{{ nginxConfig['ssl']['key'] }}",
+      "type": "standard"
+    }
+  }{% if inventory_hostname not in groups['cfssl'] %},
+  "remotes": {
+    "caserver": "{{ nginxConfig['pki'] }}:443"
+  }
+{% endif %}
+}

@@ -1,0 +1,28 @@
+---
+- name: install packages
+  portage:
+    name: app-crypt/cfssl
+    getbinpkg: yes
+    quiet: yes
+
+- name: "create ca config"
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: cfssl
+    group: cfssl
+    mode: 0640
+  with_items:
+    - { src: "gentoo/etc/cfssl/config.json.j2", dest: "/etc/cfssl/config.json" }
+
+- name: loop all root CA certificates
+  include: rootca.yml
+  loop_control:
+    loop_var: cfsslRootItem
+  with_items: "{{ (cfsslConfig | default({}))['chain'] | default([]) }}"
+
+- name: create certificate
+  shell: "cfssl gencert -ca '{{ cfsslConfig['infrastructure-ca'] }}.pem' -ca-key '{{ cfsslConfig['infrastructure-ca'] }}-key.pem' -config /etc/cfssl/config.json -profile server /etc/cfssl/csr/{{ inventory_hostname }}.json | cfssljson -bare {{ inventory_hostname }}"
+  args:
+    creates: "/var/lib/cfssl/{{ inventory_hostname }}.pem"
+    chdir: /var/lib/cfssl

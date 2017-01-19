@@ -1,0 +1,36 @@
+---
+- name: create pki config
+  template:
+    src: gentoo/etc/cfssl/config.json.j2
+    dest: /etc/cfssl/config.json
+    owner: cfssl
+    group: cfssl
+    mode: 0640
+
+- name: create certificate
+  shell: "cfssl gencert -config /etc/cfssl/config.json /etc/cfssl/csr/{{ inventory_hostname }}.json | cfssljson -bare {{ inventory_hostname }}"
+  args:
+    creates: "/var/lib/cfssl/{{ inventory_hostname }}.pem"
+    chdir: /var/lib/cfssl
+
+- name: fetch root CA
+  uri:
+    url: "https://{{ nginxConfig['pki'] }}/api/v1/cfssl/info"
+    method: POST
+    body_format: json
+    return_content: yes
+    body: "{ 'label': '{{ nginxConfig['ca'] }}' }"
+  register: nginxCaCert
+
+- name: create root CA file
+  copy:
+    content: nginxCaCert['json']['result']['certificate']
+    dest: "/var/lib/cfssl/{{ nginxConfig['ca'] }}.pem"
+    owner: cfssl
+    group: cfssl
+    mode: 0644
+
+- name: create certificate file
+  shell: "cat /var/lib/cfssl/{{ inventory_hostname }}.pem /var/lib/cfssl/{{ nginxConfig['ca'] }}.pem > /var/lib/cfssl/{{ inventory_hostname }}.nginx.pem"
+  args:
+    creates: "/var/lib/cfssl/{{ inventory_hostname }}.nginx.pem"

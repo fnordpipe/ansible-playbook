@@ -1,0 +1,21 @@
+{
+  "CN": "{{ inventory_hostname }}",
+  "hosts": [
+    "{{ inventory_hostname }}"
+  ],
+  "key": {
+    "algo": "{{ ((nginxConfig | default({}))['ssl'] | default({}))['algo'] | default('rsa') }}",
+    "size": {{ ((nginxConfig | default({}))['ssl'] | default({}))['size'] | default('4096') }}
+  },
+  "names": [
+{% for name in ((nginxConfig | default({}))['ssl'] | default({}))['names'] | default([]) %}
+    {
+      "C": "{{ name['c'] }}",
+      "L": "{{ name['l'] }}",
+      "O": "{{ name['o'] }}",
+      "OU": "{{ name['ou'] }}",
+      "ST": "{{ name['st'] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}
