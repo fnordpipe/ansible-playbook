@@ -1,0 +1,21 @@
+{
+  "CN": "{{ cfsslConfig['name'] }}",
+  "key": {
+    "algo": "{{ cfsslConfig['algo'] | default('rsa') }}",
+    "size": {{ cfsslConfig['size'] | default('4096') }}
+  },
+  "names": [
+{% for name in cfsslConfig['names'] | default([]) %}
+    {
+      "C": "{{ name['c'] }}",
+      "L": "{{ name['l'] }}",
+      "O": "{{ name['o'] }}",
+      "OU": "{{ name['ou'] }}",
+      "ST": "{{ name['st'] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+  "ca": {
+    "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['rootca'] | default('438000h') }}"
+  }
+}

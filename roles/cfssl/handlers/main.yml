@@ -1,0 +1,5 @@
+---
+- name: restart cfssl
+  service:
+    name: cfssl
+    state: restarted

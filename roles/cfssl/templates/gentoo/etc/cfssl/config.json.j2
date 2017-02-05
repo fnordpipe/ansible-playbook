@@ -13,19 +13,11 @@
     "profiles": {
       "rootca": {
         "auth_key": "key1",
+        "ca_constraints": {
+          "max_path_len": 1,
+          "is_ca": true
+        },
         "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['rootca'] | default('438000h') }}",
-        "is_ca": true,
-        "usages": [
-          "digital signature",
-          "cert sign",
-          "crl sign",
-          "signing" 
-        ]
-      },
-      "subca": {
-        "auth_key": "key1",
-        "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['subca'] | default('219000h') }}",
-        "is_ca": true,
         "usages": [
           "digital signature",
           "cert sign",
@@ -38,6 +30,7 @@
         "expiry": "{{ ((cfsslConfig | default({}))['expiry'] | default({}))['generic'] | default('17520h') }}",
         "usages": [
           "digital signature",
+          "key encipherment",
           "server auth"
         ]
       }
