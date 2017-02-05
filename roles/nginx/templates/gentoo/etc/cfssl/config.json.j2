@@ -1,24 +1,27 @@
 {
   "signing": {
     "default": {
-      "auth_key": "key1",
-      "expiry": "{{ nginxConfig['expiry'] | default('17520h') }}",
+      "expiry": "{{ nginxConfig['ssl']['expiry'] | default('17520h') }}",
       "usages": [
         "digital signature",
+        "key encipherment",
         "server auth"
-      ]{% if inventory_hostname not in groups['cfssl'] %},
+      ],
       "remote": "caserver"
-{% endif %}
+    },
+    "profiles": {
+      "server": {
+        "expiry": "{{ nginxConfig['ssl']['expiry'] | default('17520h') }}",
+        "usages": [
+          "digital signature",
+          "key encipherment",
+          "server auth"
+        ],
+        "remote": "caserver"
+      }
     }
-  },
-  "auth_keys": {
-    "key1": {
-      "key": "{{ nginxConfig['ssl']['key'] }}",
-      "type": "standard"
-    }
-  }{% if inventory_hostname not in groups['cfssl'] %},
-  "remotes": {
-    "caserver": "{{ nginxConfig['pki'] }}:443"
   }
-{% endif %}
+  "remotes": {
+    "caserver": "https://{{ nginxConfig['pki'] }}"
+  }
 }
