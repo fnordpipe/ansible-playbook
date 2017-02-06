@@ -7,6 +7,12 @@ include /etc/openldap/schema/misc.schema
 pidfile   /run/openldap/slapd.pid
 argsfile  /run/openldap/slapd.args
 
+TLSCACertificateFile /etc/ssl/rootca.pem
+TLSCertificateFile /etc/ssl/{{ inventory_hostname }}.pem
+TLSCertificateKeyFile /etc/ssl/{{ inventory_hostname }}-key.pem
+TLSDHParamFile /etc/ssl/{{ inventory_hostname }}-dh.pem
+TLSCipherSuite EECDH+AESGCM:EDH+AESGCM:AES128+EECDH:AES128+EDH
+
 modulepath  /usr/lib64/openldap/openldap
 moduleload  back_mdb
 

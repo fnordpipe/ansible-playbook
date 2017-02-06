@@ -1,9 +1,22 @@
 ---
 - name: install packages
   portage:
-    name: net-nds/openldap
+    name: "{{ item }}"
     getbinpkg: yes
     quiet: yes
+  with_items:
+    - net-nds/openldap
+
+- name: update permissions
+  file:
+    dest: "{{ item }}"
+    owner: ldap
+    group: ldap
+    state: file
+  with_items:
+    - "/etc/ssl/{{ inventory_hostname }}.pem"
+    - "/etc/ssl/{{ inventory_hostname }}-key.pem"
+    - "/etc/ssl/rootca.pem"
 
 - name: hash slapd mdb password
   command: bash -c "slappasswd -h '{CRYPT}' -s '{{ slapdConfig['db']['mdb']['password'] }}' > /etc/openldap/.slapdDbMdbPasswordHash"
