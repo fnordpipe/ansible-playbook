@@ -1,0 +1,60 @@
+---
+- name: create cfssl config
+  template:
+    src: gentoo/etc/cfssl/config.json.j2
+    dest: /etc/cfssl/config.json
+    owner: cfssl
+    group: cfssl
+    mode: 0640
+
+- name: create host certificate
+  shell: "cfssl gencert -config /etc/cfssl/config.json -profile server /etc/cfssl/csr/{{ inventory_hostname }}.json | cfssljson -bare {{ inventory_hostname }}"
+  args:
+    creates: "/var/lib/cfssl/{{ inventory_hostname }}.pem"
+    chdir: /var/lib/cfssl
+  register: sslHostCert
+
+- name: fetch root CA
+  uri:
+    url: "https://{{ sslConfig['pki'] }}/api/v1/cfssl/info"
+    method: POST
+    body_format: json
+    return_content: yes
+    body: '{ "label": "primary" }'
+  register: sslCaCert
+
+- name: create root CA file
+  copy:
+    content: "{{ sslCaCert['json']['result']['certificate'] }}\n"
+    dest: /var/lib/cfssl/rootca.pem
+    owner: cfssl
+    group: cfssl
+    mode: 0644
+
+- name: create dhparam
+  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
+  args:
+    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+
+- name: update permissions
+  file:
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    recurse: "{{ item['recurse'] }}"
+    state: "{{ item['state'] }}"
+  with_items:
+    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, recurse: yes, state: directory }
+
+- name: create certificate
+  shell: "cp /var/lib/cfssl/{{ inventory_hostname }}.pem /etc/ssl/{{ inventory_hostname }}.pem"
+  when: sslHostCert.changed == True
+
+- name: create certificate key
+  shell: "cp /var/lib/cfssl/{{ inventory_hostname }}-key.pem /etc/ssl/{{ inventory_hostname }}-key.pem"
+  when: sslHostCert.changed == True
+
+- name: create rootca certificate
+  shell: "cp /var/lib/cfssl/rootca.pem /etc/ssl/rootca.pem"
+  args:
+    creates: "/etc/ssl/rootca.pem"

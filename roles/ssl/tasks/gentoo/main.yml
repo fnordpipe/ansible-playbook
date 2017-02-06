@@ -1,0 +1,23 @@
+---
+- name: install packages
+  portage:
+    name: "{{ item }}"
+    getbinpkg: yes
+    quiet: yes
+    state: present
+  with_items:
+    - app-crypt/cfssl
+
+- name: create host csr config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  with_items:
+    - { src: gentoo/etc/cfssl/csr/srv.json.j2, dest: "/etc/cfssl/csr/{{ inventory_hostname }}.json", owner: cfssl, group: cfssl, mode: '0640' }
+
+- name: include certificate generation
+  include: ssl.yml
+  when: inventory_hostname not in groups['cfssl']
