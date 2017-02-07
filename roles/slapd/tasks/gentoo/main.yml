@@ -55,6 +55,8 @@
     owner: root
     group: root
     mode: 0640
+  notify:
+    - restart slapd
 
 - name: create directories
   file:
