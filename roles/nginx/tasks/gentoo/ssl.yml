@@ -1,56 +1,9 @@
 ---
-- name: create pki config
-  template:
-    src: gentoo/etc/cfssl/config.json.j2
-    dest: /etc/cfssl/config.json
-    owner: cfssl
-    group: cfssl
-    mode: 0640
-
-- name: create host certificate
-  shell: "cfssl gencert -config /etc/cfssl/config.json -profile server /etc/cfssl/csr/{{ inventory_hostname }}.json | cfssljson -bare {{ inventory_hostname }}"
-  args:
-    creates: "/var/lib/cfssl/{{ inventory_hostname }}.pem"
-    chdir: /var/lib/cfssl
-  register: nginxHostCert
-
-- name: fetch root CA
-  uri:
-    url: "https://{{ nginxConfig['pki'] }}/api/v1/cfssl/info"
-    method: POST
-    body_format: json
-    return_content: yes
-    body: '{ "label": "primary" }'
-  register: nginxCaCert
-
-- name: create root CA file
-  copy:
-    content: "{{ nginxCaCert['json']['result']['certificate'] }}\n"
-    dest: /var/lib/cfssl/rootca.pem
-    owner: cfssl
-    group: cfssl
-    mode: 0644
-
 - name: create certificate file
   shell: "cat {{ inventory_hostname }}.pem rootca.pem > /etc/ssl/{{ inventory_hostname }}-nginx.pem"
   args:
     chdir: /var/lib/cfssl
-  when: nginxHostCert.changed == True
-  notify:
-    - restart nginx
-
-- name: create nginx key
-  shell: "cp -p {{ inventory_hostname }}-key.pem /etc/ssl/{{ inventory_hostname }}-key.pem"
-  args:
-    chdir: /var/lib/cfssl
-  when: nginxHostCert.changed == True
-  notify:
-    - restart nginx
-
-- name: create nginx dhparam
-  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
-  args:
-    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+  when: sslHostCert.changed == True
   notify:
     - restart nginx
 
@@ -62,6 +15,6 @@
     recurse: "{{ item['recurse'] }}"
     state: "{{ item['state'] }}"
   with_items:
-    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, recurse: yes, state: directory }
     - { dest: "/etc/ssl/{{ inventory_hostname }}-nginx.pem", owner: nginx, group: nginx, recurse: no, state: file }
     - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: nginx, group: nginx, recurse: no, state: file }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-dh.pem", owner: nginx, group: nginx, recurse: no, state: file }
