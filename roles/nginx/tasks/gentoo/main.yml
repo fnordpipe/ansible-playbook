@@ -49,3 +49,26 @@
   service:
     name: nginx
     state: started
+
+- name: create certificate file
+  shell: "cat {{ inventory_hostname }}.pem rootca.pem > /etc/ssl/{{ inventory_hostname }}-nginx.pem"
+  args:
+    chdir: /var/lib/cfssl
+  when:
+    - sslHostCert.changed == True
+    - inventory_hostname not in groups['cfssl']
+  notify:
+    - restart nginx
+
+- name: update permissions
+  file:
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    recurse: "{{ item['recurse'] }}"
+    state: "{{ item['state'] }}"
+  when: item['when'] | default(True) | bool
+  with_items:
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-nginx.pem", owner: nginx, group: nginx, recurse: no, state: file, when: "{{ inventory_hostname not in groups['cfssl'] }}" }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: nginx, group: nginx, recurse: no, state: file, when: "{{ inventory_hostname not in groups['cfssl'] }}" }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-dh.pem", owner: nginx, group: nginx, recurse: no, state: file }

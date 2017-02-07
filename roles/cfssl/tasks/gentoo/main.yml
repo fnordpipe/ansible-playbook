@@ -53,13 +53,6 @@
   notify:
     - restart nginx
 
-- name: create nginx dharam
-  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
-  args:
-    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
-  notify:
-    - restart nginx
-
 - name: create nginx config
   template:
     src: gentoo/etc/nginx/conf.d/cfssl.conf.j2
