@@ -20,4 +20,6 @@
 
 - name: include certificate generation
   include: ssl.yml
-  when: inventory_hostname not in groups['cfssl']
+  when:
+    - inventory_hostname not in groups['cfssl']
+    - sslConfig['pki'] is defined
