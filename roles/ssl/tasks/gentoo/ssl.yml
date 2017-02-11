@@ -31,11 +31,6 @@
     group: cfssl
     mode: 0644
 
-- name: create dhparam
-  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
-  args:
-    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
-
 - name: update permissions
   file:
     dest: "{{ item['dest'] }}"
