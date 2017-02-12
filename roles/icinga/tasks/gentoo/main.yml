@@ -8,6 +8,13 @@
   with_items:
     - net-analyzer/icinga2
 
+- name: update permissions of ping
+  file:
+    dest: /bin/ping
+    owner: root
+    group: root
+    mode: '4711'
+
 - name: update permissions
   file:
     dest: "{{ item }}"
@@ -30,6 +37,8 @@
     - { src: gentoo/etc/icinga2/features-enabled/ido-pgsql.conf.j2, dest: /etc/icinga2/features-enabled/ido-pgsql.conf }
     - { src: gentoo/etc/icinga2/features-enabled/api.conf.j2, dest: /etc/icinga2/features-enabled/api.conf }
     - { src: gentoo/etc/icinga2/conf.d/api-users.conf.j2, dest: /etc/icinga2/conf.d/api-users.conf }
+    - { src: gentoo/etc/icinga2/conf.d/hosts.conf.j2, dest: /etc/icinga2/conf.d/hosts.conf }
+    - { src: gentoo/etc/icinga2/conf.d/groups.conf.j2, dest: /etc/icinga2/conf.d/groups.conf }
   notify:
     - restart icinga
 

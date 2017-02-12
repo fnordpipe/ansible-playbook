@@ -1,0 +1,45 @@
+object HostGroup "linux-servers" {
+  display_name = "linux servers"
+
+  assign where host.vars.os == "linux"
+}
+
+object HostGroup "dom0-servers" {
+  display_name = "dom0 servers"
+
+  assign where host.vars.type == "dom0"
+}
+
+object HostGroup "domU-servers" {
+  display_name = "domU servers"
+
+  assign where host.vars.type == "domU"
+}
+
+object HostGroup "lxc-servers" {
+  display_name = "lxc servers"
+
+  assign where host.vars.type == "lxc"
+}
+
+/**
+ * Service group examples.
+ */
+
+object ServiceGroup "ping" {
+  display_name = "Ping Checks"
+
+  assign where match("ping*", service.name)
+}
+
+object ServiceGroup "http" {
+  display_name = "HTTP Checks"
+
+  assign where match("http*", service.check_command)
+}
+
+object ServiceGroup "disk" {
+  display_name = "Disk Checks"
+
+  assign where match("disk*", service.check_command)
+}
