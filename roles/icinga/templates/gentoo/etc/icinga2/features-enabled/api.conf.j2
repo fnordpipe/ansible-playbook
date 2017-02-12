@@ -1,0 +1,11 @@
+/**
+ * The API listener is used for distributed monitoring setups.
+ */
+
+object ApiListener "api" {
+  cert_path = "/etc/ssl/{{ inventory_hostname }}.pem"
+  key_path = "/etc/ssl/{{ inventory_hostname }}-key.pem"
+  ca_path = "/etc/ssl/rootca.pem"
+
+  ticket_salt = TicketSalt
+}

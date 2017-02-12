@@ -8,13 +8,28 @@
   with_items:
     - net-analyzer/icinga2
 
+- name: update permissions
+  file:
+    dest: "{{ item }}"
+    owner: icinga
+    group: icinga
+    state: file
+  with_items:
+    - "/etc/ssl/{{ inventory_hostname }}.pem"
+    - "/etc/ssl/{{ inventory_hostname }}-key.pem"
+    - "/etc/ssl/rootca.pem"
+
 - name: create config
   template:
-    src: gentoo/etc/icinga2/features-enabled/ido-pgsql.conf.j2
-    dest: /etc/icinga2/features-enabled/ido-pgsql.conf
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
     owner: root
     group: root
     mode: 0644
+  with_items:
+    - { src: gentoo/etc/icinga2/features-enabled/ido-pgsql.conf.j2, dest: /etc/icinga2/features-enabled/ido-pgsql.conf }
+    - { src: gentoo/etc/icinga2/features-enabled/api.conf.j2, dest: /etc/icinga2/features-enabled/api.conf }
+    - { src: gentoo/etc/icinga2/conf.d/api-users.conf.j2, dest: /etc/icinga2/conf.d/api-users.conf }
   notify:
     - restart icinga
 

@@ -1,0 +1,4 @@
+object ApiUser "{{ icingaConfig['api']['username'] }}" {
+  password = "{{ icingaConfig['api']['password'] }}"
+  permissions = [ "actions/*", "objects/modify/hosts", "objects/modify/services", "objects/modify/icingaapplication" ]
+}
