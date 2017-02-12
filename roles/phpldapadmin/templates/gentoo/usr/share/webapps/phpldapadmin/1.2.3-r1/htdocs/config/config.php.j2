@@ -253,7 +253,7 @@ $servers->setValue('server','name','{{ phpldapadminConfig['name'] }}');
 $servers->setValue('server','host','{{ phpldapadminConfig['host'] }}');
 
 /* The port your LDAP server listens on (no quotes). 389 is standard. */
-// $servers->setValue('server','port',{{ phpldapadminConfig['port'] }});
+$servers->setValue('server','port',{{ phpldapadminConfig['port'] }});
 
 /* Array of base DNs of your LDAP server. Leave this blank to have phpLDAPadmin
    auto-detect it for you. */
