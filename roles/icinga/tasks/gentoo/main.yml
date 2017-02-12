@@ -1,0 +1,30 @@
+---
+- name: install packages
+  portage:
+    name: "{{ item }}"
+    getbinpkg: yes
+    quiet: yes
+    state: present
+  with_items:
+    - net-analyzer/icinga2
+
+- name: create config
+  template:
+    src: gentoo/etc/icinga2/features-enabled/ido-pgsql.conf.j2
+    dest: /etc/icinga2/features-enabled/ido-pgsql.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart icinga
+
+- name: symlink initscript
+  file:
+    src: /etc/init.d/icinga2
+    dest: /etc/runlevels/default/icinga2
+    state: link
+
+- name: start initscript
+  service:
+    name: icinga2
+    state: started
