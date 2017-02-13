@@ -66,6 +66,7 @@
     state: directory
   with_items:
     - { dest: /etc/portage/repos.conf, owner: root, group: root, mode: 755 }
+    - { dest: /etc/openldap, owner: root, group: root, mode: 755 }
 
 - name: create /etc/portage/repos.conf/distro.conf
   template:
@@ -131,3 +132,11 @@
   with_items:
     - sshd
     - syslog-ng
+
+- name: copy ldap config
+  template:
+    src: gentoo/etc/openldap/ldap.conf.j2
+    dest: /etc/openldap/ldap.conf
+    owner: root
+    group: root
+    mode: 0644

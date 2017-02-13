@@ -33,13 +33,3 @@
   notify:
     - restart php-fpm
     - restart nginx
-
-- name: create ldap config
-  template:
-    src: gentoo/etc/openldap/ldap.conf.j2
-    dest: /etc/openldap/ldap.conf
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - restart php-fpm
