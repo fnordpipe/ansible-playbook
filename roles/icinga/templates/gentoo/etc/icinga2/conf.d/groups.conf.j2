@@ -7,19 +7,19 @@ object HostGroup "linux-servers" {
 object HostGroup "dom0-servers" {
   display_name = "dom0 servers"
 
-  assign where host.vars.type == "dom0"
+  assign where "dom0-host" in host.templates
 }
 
 object HostGroup "domU-servers" {
   display_name = "domU servers"
 
-  assign where host.vars.type == "domU"
+  assign where "domU-host" in host.templates
 }
 
 object HostGroup "lxc-servers" {
   display_name = "lxc servers"
 
-  assign where host.vars.type == "lxc"
+  assign where "lxc-host" in host.templates
 }
 
 /**

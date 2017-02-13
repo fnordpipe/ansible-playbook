@@ -1,0 +1,15 @@
+object Zone "global-templates" {
+  global = true
+}
+
+{% for host in groups['all'] %}
+object Endpoint "{{ host }}" {
+  host = "{{ host }}"
+}
+object Zone "{{ host }}" {
+  endpoints = [ "{{ host }}" ]
+{% if host != inventory_hostname %}
+  parent = "{{ inventory_hostname }}"
+{% endif %}
+}
+{% endfor %}

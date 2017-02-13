@@ -1,17 +1,15 @@
 {% for host in groups['all'] %}
 object Host "{{ host }}" {
-  import "generic-host"
-
-{% if host in groups['domU'] %}
-  vars.type = "domU"
-{% endif %}
 {% if host in groups['dom0'] %}
-  vars.type = "dom0"
+  import "dom0-host"
+{% endif %}
+{% if host in groups['domU'] %}
+  import "domU-host"
 {% endif %}
 {% if host in groups['lxc'] %}
-  vars.type = "lxc"
-  vars.os = "linux"
+  import "lxc-host"
 {% endif %}
+
   address = "{{ host }}"
 }
 {% endfor %}
