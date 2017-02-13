@@ -39,6 +39,7 @@
     - { src: gentoo/etc/icinga2/conf.d/api-users.conf.j2, dest: /etc/icinga2/conf.d/api-users.conf }
     - { src: gentoo/etc/icinga2/conf.d/templates.conf.j2, dest: /etc/icinga2/conf.d/templates.conf }
     - { src: gentoo/etc/icinga2/conf.d/hosts.conf.j2, dest: /etc/icinga2/conf.d/hosts.conf }
+    - { src: gentoo/etc/icinga2/conf.d/services.conf.j2, dest: /etc/icinga2/conf.d/services.conf }
     - { src: gentoo/etc/icinga2/conf.d/groups.conf.j2, dest: /etc/icinga2/conf.d/groups.conf }
     - { src: gentoo/etc/icinga2/zones.conf.j2, dest: /etc/icinga2/zones.conf }
   notify:
