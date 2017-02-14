@@ -1,4 +1,12 @@
 ---
+- name: "create generic zone directory"
+  file:
+    dest: /etc/icinga2/zones.d/generic
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
 - name: create master config
   template:
     src: "{{ item['src'] }}"
@@ -9,10 +17,9 @@
   with_items:
     - { src: gentoo/etc/icinga2/conf.d/api-users.conf.j2, dest: /etc/icinga2/conf.d/api-users.conf }
     - { src: gentoo/etc/icinga2/features-enabled/ido-pgsql.conf.j2, dest: /etc/icinga2/features-enabled/ido-pgsql.conf }
-    - { src: gentoo/etc/icinga2/conf.d/templates.conf.j2, dest: /etc/icinga2/conf.d/templates.conf }
-#    - { src: gentoo/etc/icinga2/conf.d/hosts.conf.j2, dest: /etc/icinga2/conf.d/hosts.conf }
-    - { src: gentoo/etc/icinga2/conf.d/services.conf.j2, dest: /etc/icinga2/conf.d/services.conf }
-    - { src: gentoo/etc/icinga2/conf.d/groups.conf.j2, dest: /etc/icinga2/conf.d/groups.conf }
+    - { src: gentoo/etc/icinga2/zones.d/templates.conf.j2, dest: /etc/icinga2/zones.d/generic/templates.conf }
+    - { src: gentoo/etc/icinga2/zones.d/services.conf.j2, dest: /etc/icinga2/zones.d/generic/services.conf }
+    - { src: gentoo/etc/icinga2/zones.d/groups.conf.j2, dest: /etc/icinga2/zones.d/generic/groups.conf }
   notify:
     - restart icinga
 

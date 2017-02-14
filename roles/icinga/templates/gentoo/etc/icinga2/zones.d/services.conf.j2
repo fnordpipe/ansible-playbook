@@ -50,12 +50,11 @@ apply Service "load" {
   import "generic-service"
 
   check_command = "load"
-  command_endpoint = host.vars.command_endpoint
 
   /* Used by the ScheduledDowntime apply rule in `downtimes.conf`. */
   //vars.backup_downtime = "02:00-03:00"
 
-  assign where "linux-host" in host.templates && host.vars.command_endpoint
+  assign where "linux-host" in host.templates
 }
 
 apply Service "procs" {

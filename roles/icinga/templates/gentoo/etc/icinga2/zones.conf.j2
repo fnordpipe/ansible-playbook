@@ -1,4 +1,4 @@
-object Zone "global" {
+object Zone "generic" {
   global = true
 }
 
@@ -8,8 +8,8 @@ object Endpoint "{{ host }}" {
 }
 object Zone "{{ host }}" {
   endpoints = [ "{{ host }}" ]
-{% if host != inventory_hostname %}
-  parent = "{{ inventory_hostname }}"
+{% if (hostvars[host]['icingaConfig'] | default({}))['parent'] is defined %}
+  parent = "{{ hostvars[host]['icingaConfig']['parent'] }}"
 {% endif %}
 }
 {% endfor %}
