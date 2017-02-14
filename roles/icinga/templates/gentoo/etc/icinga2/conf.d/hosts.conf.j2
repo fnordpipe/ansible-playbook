@@ -10,6 +10,7 @@ object Host "{{ host }}" {
   import "lxc-host"
 {% endif %}
 
+  vars.command_endpoint = "{{ host }}"
   address = "{{ host }}"
 }
 {% endfor %}

@@ -1,0 +1,23 @@
+---
+- name: create master config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - { src: gentoo/etc/icinga2/conf.d/api-users.conf.j2, dest: /etc/icinga2/conf.d/api-users.conf }
+    - { src: gentoo/etc/icinga2/features-enabled/ido-pgsql.conf.j2, dest: /etc/icinga2/features-enabled/ido-pgsql.conf }
+    - { src: gentoo/etc/icinga2/conf.d/templates.conf.j2, dest: /etc/icinga2/conf.d/templates.conf }
+#    - { src: gentoo/etc/icinga2/conf.d/hosts.conf.j2, dest: /etc/icinga2/conf.d/hosts.conf }
+    - { src: gentoo/etc/icinga2/conf.d/services.conf.j2, dest: /etc/icinga2/conf.d/services.conf }
+    - { src: gentoo/etc/icinga2/conf.d/groups.conf.j2, dest: /etc/icinga2/conf.d/groups.conf }
+  notify:
+    - restart icinga
+
+- name: loop zone definition
+  include: zone.yml
+  loop_control:
+    loop_var: zoneItem
+  with_items: "{{ groups['all'] }}"

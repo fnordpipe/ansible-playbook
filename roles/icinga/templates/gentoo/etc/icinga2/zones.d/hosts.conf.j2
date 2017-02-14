@@ -1,0 +1,13 @@
+object Host "{{ zoneItem }}" {
+{% if zoneItem in groups['dom0'] %}
+  import "dom0-host"
+{% endif %}
+{% if zoneItem in groups['domU'] %}
+  import "domU-host"
+{% endif %}
+{% if zoneItem in groups['lxc'] %}
+  import "lxc-host"
+{% endif %}
+
+  address = "{{ zoneItem }}"
+}

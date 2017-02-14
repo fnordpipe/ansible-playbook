@@ -1,11 +1,12 @@
-/**
- * The API listener is used for distributed monitoring setups.
- */
-
 object ApiListener "api" {
   cert_path = "/etc/ssl/{{ inventory_hostname }}.pem"
   key_path = "/etc/ssl/{{ inventory_hostname }}-key.pem"
   ca_path = "/etc/ssl/rootca.pem"
 
+{% if inventory_hostname not in groups['icinga'] %}
+  accept_commands = true
+  accept_config = true
+{% else %}
   ticket_salt = TicketSalt
+{% endif %}
 }
