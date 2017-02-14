@@ -16,3 +16,5 @@
     mode: 0644
   with_items:
     - { src: gentoo/etc/icinga2/zones.d/hosts.conf.j2, dest: "/etc/icinga2/zones.d/{{ zoneItem }}/hosts.conf" }
+  notify:
+    - restart icinga

@@ -2,6 +2,7 @@ apply Service "ping4" {
   import "generic-service"
 
   check_command = "ping4"
+  zone = "{{ inventory_hostname }}"
 
   assign where host.address
 }
