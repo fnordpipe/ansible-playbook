@@ -8,6 +8,25 @@
   with_items:
     - app-crypt/cfssl
 
+- name: create ssl group
+  group:
+    name: ssl
+    system: yes
+    state: present
+
+- name: create dhparam
+  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
+  args:
+    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+
+- name: update dh permissions
+  file:
+    dest: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+    owner: root
+    group: ssl
+    mode: 0640
+    state: file
+
 - name: create host csr config
   template:
     src: "{{ item['src'] }}"
@@ -18,13 +37,7 @@
   with_items:
     - { src: gentoo/etc/cfssl/csr/srv.json.j2, dest: "/etc/cfssl/csr/{{ inventory_hostname }}.json", owner: cfssl, group: cfssl, mode: '0640' }
 
-- name: create dhparam
-  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
-  args:
-    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
-
 - name: include certificate generation
   include: ssl.yml
   when:
     - inventory_hostname not in groups['cfssl']
-

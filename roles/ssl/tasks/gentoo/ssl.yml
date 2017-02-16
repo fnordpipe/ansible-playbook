@@ -31,16 +31,6 @@
     group: cfssl
     mode: 0644
 
-- name: update permissions
-  file:
-    dest: "{{ item['dest'] }}"
-    owner: "{{ item['owner'] }}"
-    group: "{{ item['group'] }}"
-    recurse: "{{ item['recurse'] }}"
-    state: "{{ item['state'] }}"
-  with_items:
-    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, recurse: yes, state: directory }
-
 - name: create certificate
   shell: "cp /var/lib/cfssl/{{ inventory_hostname }}.pem /etc/ssl/{{ inventory_hostname }}.pem"
   when: sslHostCert.changed == True
@@ -53,3 +43,16 @@
   shell: "cp /var/lib/cfssl/rootca.pem /etc/ssl/rootca.pem"
   args:
     creates: "/etc/ssl/rootca.pem"
+
+- name: update certificate permissions
+  file:
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    recurse: "{{ item['recurse'] }}"
+    state: "{{ item['state'] }}"
+  with_items:
+    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, recurse: yes, state: directory }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}.pem", owner: root, group: ssl, recurse: no, state: file }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: root, group: ssl, recurse: no, state: file }
+    - { dest: "/etc/ssl/rootca.pem", owner: root, group: ssl, recurse: no, state: file }
