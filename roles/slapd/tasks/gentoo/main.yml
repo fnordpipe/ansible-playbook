@@ -7,16 +7,13 @@
   with_items:
     - net-nds/openldap
 
-- name: update permissions
-  file:
-    dest: "{{ item }}"
-    owner: ldap
-    group: ldap
-    state: file
-  with_items:
-    - "/etc/ssl/{{ inventory_hostname }}.pem"
-    - "/etc/ssl/{{ inventory_hostname }}-key.pem"
-    - "/etc/ssl/rootca.pem"
+- name: add ldap user to group ssl
+  user:
+    name: ldap
+    groups: ssl
+    append: yes
+  notify:
+    - restart slapd
 
 - name: hash slapd mdb password
   command: bash -c "slappasswd -h '{CRYPT}' -s '{{ slapdConfig['db']['mdb']['password'] }}' > /etc/openldap/.slapdDbMdbPasswordHash"
