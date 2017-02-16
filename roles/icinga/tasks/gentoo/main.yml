@@ -8,23 +8,18 @@
   with_items:
     - net-analyzer/icinga2
 
+- name: add icinga user to group ssl
+  user:
+    name: icinga
+    groups: ssl
+    append: yes
+
 - name: update permissions of ping
   file:
     dest: /bin/ping
     owner: root
     group: root
     mode: '4711'
-
-- name: update permissions
-  file:
-    dest: "{{ item }}"
-    owner: icinga
-    group: icinga
-    state: file
-  with_items:
-    - "/etc/ssl/{{ inventory_hostname }}.pem"
-    - "/etc/ssl/{{ inventory_hostname }}-key.pem"
-    - "/etc/ssl/rootca.pem"
 
 - name: create config
   template:
