@@ -49,10 +49,11 @@
     dest: "{{ item['dest'] }}"
     owner: "{{ item['owner'] }}"
     group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
     recurse: "{{ item['recurse'] }}"
     state: "{{ item['state'] }}"
   with_items:
-    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, recurse: yes, state: directory }
-    - { dest: "/etc/ssl/{{ inventory_hostname }}.pem", owner: root, group: ssl, recurse: no, state: file }
-    - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: root, group: ssl, recurse: no, state: file }
-    - { dest: "/etc/ssl/rootca.pem", owner: root, group: ssl, recurse: no, state: file }
+    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, mode: '0750', recurse: yes, state: directory }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}.pem", owner: root, group: ssl, mode: '0640', recurse: no, state: file }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: root, group: ssl, mode: '0640', recurse: no, state: file }
+    - { dest: "/etc/ssl/rootca.pem", owner: root, group: ssl, mode: '0644', recurse: no, state: file }
