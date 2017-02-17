@@ -7,7 +7,6 @@
     state: present
   with_items:
     - www-servers/nginx
-    - app-crypt/cfssl
 
 - name: update config
   template:
