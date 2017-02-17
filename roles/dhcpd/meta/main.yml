@@ -1,3 +1,4 @@
 ---
 dependencies:
   - { role: 'common' }
+  - { role: 'icinga', when: icingaConfig is defined }
