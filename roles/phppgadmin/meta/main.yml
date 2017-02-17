@@ -2,4 +2,4 @@
 dependencies:
   - { role: 'common' }
   - { role: 'php' }
-  - { role: 'ssl' }
+  - { role: 'icinga', when: icingaConfig is defined }
