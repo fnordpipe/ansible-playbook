@@ -29,6 +29,7 @@
   args:
     creates: "/var/lib/cfssl/rootca.pem"
     chdir: /var/lib/cfssl
+  register: cfsslRootCa
 
 - name: create host certificate
   shell: "cfssl gencert -ca rootca.pem -ca-key rootca-key.pem -config /etc/cfssl/config.json -profile server /etc/cfssl/csr/{{ inventory_hostname }}.json | cfssljson -bare {{ inventory_hostname }}"
@@ -45,11 +46,27 @@
   notify:
     - restart nginx
 
-- name: create nginx key
+- name: create certificate
+  shell: "cp -p {{ inventory_hostname }}.pem /etc/ssl/{{ inventory_hostname }}.pem"
+  args:
+    chdir: /var/lib/cfssl
+  when: cfsslHostCert.changed == True
+  notify:
+    - restart nginx
+
+- name: create certificate key
   shell: "cp -p {{ inventory_hostname }}-key.pem /etc/ssl/{{ inventory_hostname }}-key.pem"
   args:
     chdir: /var/lib/cfssl
   when: cfsslHostCert.changed == True
+  notify:
+    - restart nginx
+
+- name: create /etc/ssl/rootca.pem
+  shell: "cp -p rootca.pem /etc/ssl/rootca.pem"
+  args:
+    chdir: /var/lib/cfssl
+  when: cfsslRootCa.changed == True
   notify:
     - restart nginx
 
@@ -68,12 +85,14 @@
     dest: "{{ item['dest'] }}"
     owner: "{{ item['owner'] }}"
     group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
     recurse: "{{ item['recurse'] }}"
     state: "{{ item['state'] }}"
   with_items:
-    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, recurse: yes, state: directory }
-    - { dest: "/etc/ssl/{{ inventory_hostname }}-nginx.pem", owner: nginx, group: nginx, recurse: no, state: file }
-    - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: nginx, group: nginx, recurse: no, state: file }
+    - { dest: /var/lib/cfssl, owner: cfssl, group: cfssl, mode: '0750', recurse: yes, state: directory }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}.pem", owner: root, group: ssl, mode: '0640', recurse: no, state: file }
+    - { dest: "/etc/ssl/{{ inventory_hostname }}-key.pem", owner: root, group: ssl, mode: '0640', recurse: no, state: file }
+    - { dest: "/etc/ssl/rootca.pem", owner: root, group: ssl, mode: '0644', recurse: no, state: file }
 
 - name: start initscript
   service:
