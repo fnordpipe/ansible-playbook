@@ -11,7 +11,7 @@
 - name: stat /var/lib/postgresql/9.5
   stat:
     path: /var/lib/postgresql/9.5
-  register: postgresqlInitialized
+  register: postgresInitialized
 
 - name: enable unattanded configuration
   lineinfile:
@@ -19,7 +19,7 @@
     regexp: '^correct=true$'
     line: 'correct=true'
     state: present
-  when: postgresqlInitialized.stat.exists == False
+  when: postgresInitialized.stat.exists == False
 
 - name: create database
   command: emerge --config dev-db/postgresql
