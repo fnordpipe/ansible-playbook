@@ -30,6 +30,7 @@
     owner: cfssl
     group: cfssl
     mode: 0644
+  when: sslCaCert.changed == True
 
 - name: create certificate
   shell: "cp /var/lib/cfssl/{{ inventory_hostname }}.pem /etc/ssl/{{ inventory_hostname }}.pem"
