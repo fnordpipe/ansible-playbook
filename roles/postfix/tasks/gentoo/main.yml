@@ -1,0 +1,26 @@
+---
+- name: install packages
+  portage:
+    name: "{{ item }}"
+    getbinpkg: yes
+    quiet: yes
+    state: present
+  with_items:
+    - mail-mta/postfix
+
+- name: create config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  with_items:
+    - { src: gentoo/etc/postfix/main.cf.j2, dest: /etc/postfix/main.cf, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/postfix/master.cf.j2, dest: /etc/postfix/master.cf, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/postfix/black.list.j2, dest: /etc/postfix/black.list, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/postfix/virtual_domains.list.j2, dest: /etc/postfix/virtual_domains.list, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/postfix/virtual_recipients.cf.j2, dest: /etc/postfix/virtual_recipients.cf, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/postfix/virtual_aliases.cf.j2, dest: /etc/postfix/virtual_aliases.cf, owner: root, group: root, mode: '0644' }
+  notify:
+    - restart postfix

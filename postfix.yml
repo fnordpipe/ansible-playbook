@@ -1,0 +1,7 @@
+---
+- name: assign postfix role
+  hosts: postfix
+  remote_user: root
+
+  roles:
+  - postfix

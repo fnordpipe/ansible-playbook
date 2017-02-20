@@ -1,0 +1,118 @@
+compatibility_level = 2
+
+queue_directory = /var/spool/postfix
+command_directory = /usr/sbin
+daemon_directory = /usr/libexec/postfix
+data_directory = /var/lib/postfix
+
+mail_owner = postfix
+#default_privs = nobody
+
+myhostname = {{ inventory_hostname }}
+mydomain = {{ inventory_hostname | getDomain }}
+myorigin = $mydomain
+
+inet_interfaces = all
+
+mydestination = $myhostname, $mydomain, {{ inventory_hostname | getDomain | getDomain }}
+
+unknown_local_recipient_reject_code = 550
+
+mynetworks = 127.0.0.0/8
+
+relay_domains = $mydestination
+
+{% if (postfixConfig | default({}))['relayhost'] is defined %}
+relayhost = {{ postfixConfig['relayhost'] }}
+{% endif %}
+
+alias_maps = 
+
+append_dot_mydomain = no
+
+{% if (postfixConfig | default({}))['virtual_domains'] is defined %}
+virtual_mailbox_domains = hash:/etc/postfix/virtual_domains.list
+{% endif %}
+{% if (postfixConfig | default({}))['ldap'] is defined %}
+virtual_mailbox_maps = proxy:ldap:/etc/postfix/virtual_recipients.cf
+{% endif %}
+{% if (postfixConfig | default({}))['ldap'] is defined %}
+virtual_alias_maps = proxy:ldap:/etc/postfix/virtual_aliases.cf
+{% endif %}
+
+recipient_delimiter = +
+
+smtpd_banner = $myhostname ESMTP
+
+debug_peer_level = 2
+
+sendmail_path = /usr/sbin/sendmail
+newaliases_path = /usr/bin/newaliases
+mailq_path = /usr/bin/mailq
+manpage_directory = /usr/share/man
+
+setgid_group = postdrop
+
+html_directory = no
+
+readme_directory = no
+inet_protocols = ipv4
+meta_directory = /etc/postfix
+shlib_directory = /usr/lib64/postfix/${mail_version}
+home_mailbox = .maildir/
+
+virtual_transport = dovecot
+dovecot_destination_recipient_limit = 1
+
+smtpd_sasl_auth_enable = yes
+broken_sasl_auth_clients = yes
+smtpd_tls_security_level = may
+smtpd_tls_auth_only = yes
+smtpd_tls_CAfile = /etc/ssl/rootca.pem
+smtpd_tls_cert_file = /etc/ssl/{{ inventory_hostname }}.pem
+smtpd_tls_key_file = /etc/ssl/{{ inventory_hostname }}-key.pem
+tls_random_source = dev:/dev/urandom
+smtpd_tls_loglevel = 0
+smtpd_client_new_tls_session_rate_limit = 10
+smtpd_tls_session_cache_database = btree:/etc/postfix/smtpd_session_cache
+smtpd_tls_dh1024_param_file = /etc/ssl/{{ inventory_hostname }}-dh.pem
+smtpd_tls_mandatory_ciphers = EECDH+AESGCM:EDH+AESGCM:AES128+EECDH:AES128+EDH
+smtpd_tls_ciphers = EECDH+AESGCM:EDH+AESGCM:AES128+EECDH:AES128+EDH
+smtpd_tls_mandatory_protocols = TLSv1.2
+
+postscreen_greet_action = enforce
+
+smtpd_recipient_restrictions =
+  reject_non_fqdn_recipient
+  reject_unknown_recipient_domain
+  # Allow relaying for SASL authenticated clients and trusted hosts/networks
+  # This can be put to smtpd_relay_restrictions in Postfix 2.10 and later 
+  permit_sasl_authenticated
+  permit_mynetworks
+  # If not authenticated or on mynetworks, reject mailing to external addresses
+  reject_unauth_destination
+  # Reject the following hosts
+  check_sender_ns_access cidr:/etc/postfix/black.list
+  check_sender_mx_access cidr:/etc/postfix/black.list
+  # Additional blacklist
+  reject_rbl_client ix.dnsbl.manitu.net
+  # Finally permit (relaying still requires SASL auth)
+  # WARNING: Due to this permit, everyone will be able to send emails to internal addresses without authentication. If this is set to reject though, the server does not receive emails from external addresses. Unfortunately I do not have a solution for this.
+  permit
+
+smtpd_data_restrictions = reject_multi_recipient_bounce
+
+smtpd_sender_restrictions =
+  reject_non_fqdn_sender
+  reject_unknown_sender_domain
+
+smtpd_helo_restrictions =
+  permit_mynetworks
+  #check_helo_access pcre:/etc/postfix/identitycheck.pcre
+  #reject_non_fqdn_helo_hostname
+  reject_invalid_hostname
+
+disable_vrfy_command = yes
+smtpd_delay_reject = no
+
+smtpd_client_restrictions = check_client_access cidr:/etc/postfix/black.list
