@@ -45,6 +45,15 @@
     group: ldap
     mode: 0640
 
+- name: create /etc/openldap/schema/mail.schema
+  file:
+    src: gentoo/etc/openldap/schema/mail.schema
+    dest: /etc/openldap/schema/mail.schema
+    owner: root
+    group: ldap
+    mode: 0640
+    state: file
+
 - name: create /etc/conf.d/slapd
   copy:
     src: gentoo/etc/conf.d/slapd.j2
