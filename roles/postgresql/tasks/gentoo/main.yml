@@ -8,6 +8,17 @@
     - dev-db/postgresql
     - dev-python/psycopg
 
+- name: create certificate key for postgres
+  file:
+    src: "/etc/ssl/{{ inventory_hostname }}-key.pem"
+    dest: "/etc/ssl/{{ inventory_hostname }}-key.pg.pem"
+    owner: postgres
+    group: postgres
+    mode: '0600'
+    state: hard
+  notify:
+    - restart postgresql
+
 - name: stat /var/lib/postgresql/9.5
   stat:
     path: /var/lib/postgresql/9.5
