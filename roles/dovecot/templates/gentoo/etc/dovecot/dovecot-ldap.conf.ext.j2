@@ -1,0 +1,10 @@
+hosts = {{ dovecotConfig['ldap']['hosts'] }}
+dn = {{ dovecotConfig['ldap']['dn'] }}
+dnpass = {{ dovecotConfig['ldap']['dnpass'] }}
+ldap_version = 3
+base = {{ dovecotConfig['ldap']['base'] }}
+user_attrs = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
+user_filter = (&(objectClass=posixAccount)(uid=%n))
+pass_attrs = uid=user,userPassword=password
+pass_filter = (&(objectClass=posixAccount)(uid=%n))
+default_pass_scheme = CRYPT
