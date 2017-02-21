@@ -24,3 +24,14 @@
     - { src: gentoo/etc/postfix/virtual_aliases.cf.j2, dest: /etc/postfix/virtual_aliases.cf, owner: root, group: root, mode: '0644' }
   notify:
     - restart postfix
+
+- name: create initscript link
+  file:
+    src: /etc/init.d/postfix
+    dest: /etc/runlevels/default/postfix
+    state: link
+
+- name: start initscript
+  service:
+    name: postfix
+    state: started
