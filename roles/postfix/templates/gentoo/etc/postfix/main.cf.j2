@@ -31,7 +31,7 @@ alias_maps =
 append_dot_mydomain = no
 
 {% if (postfixConfig | default({}))['virtual_domains'] is defined %}
-virtual_mailbox_domains = hash:/etc/postfix/virtual_domains.list
+virtual_mailbox_domains = /etc/postfix/virtual_domains.list
 {% endif %}
 {% if (postfixConfig | default({}))['ldap'] is defined %}
 virtual_mailbox_maps = proxy:ldap:/etc/postfix/virtual_recipients.cf
@@ -61,11 +61,16 @@ meta_directory = /etc/postfix
 shlib_directory = /usr/lib64/postfix/${mail_version}
 home_mailbox = .maildir/
 
+{% if inventory_hostname in groups['dovecot'] %}
 virtual_transport = dovecot
 dovecot_destination_recipient_limit = 1
 
 smtpd_sasl_auth_enable = yes
 broken_sasl_auth_clients = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+{% endif %}
+
 smtpd_tls_security_level = may
 smtpd_tls_auth_only = yes
 smtpd_tls_CAfile = /etc/ssl/rootca.pem
@@ -84,7 +89,7 @@ postscreen_greet_action = enforce
 
 smtpd_recipient_restrictions =
   reject_non_fqdn_recipient
-  reject_unknown_recipient_domain
+  #reject_unknown_recipient_domain
   # Allow relaying for SASL authenticated clients and trusted hosts/networks
   # This can be put to smtpd_relay_restrictions in Postfix 2.10 and later 
   permit_sasl_authenticated

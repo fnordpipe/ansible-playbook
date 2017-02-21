@@ -7,6 +7,7 @@
     state: present
   with_items:
     - net-mail/dovecot
+    - dev-libs/cyrus-sasl
 
 - name: create vmail group
   group:
@@ -35,18 +36,26 @@
     - { src: gentoo/etc/dovecot/dovecot-ldap.conf.ext.j2, dest: /etc/dovecot/dovecot-ldap.conf.ext, owner: root, group: root, mode: '0644' }
     - { src: gentoo/etc/dovecot/conf.d/10-auth.conf.j2, dest: /etc/dovecot/conf.d/10-auth.conf, owner: root, group: root, mode: '0644' }
     - { src: gentoo/etc/dovecot/conf.d/10-master.conf.j2, dest: /etc/dovecot/conf.d/10-master.conf, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/dovecot/conf.d/10-mail.conf.j2, dest: /etc/dovecot/conf.d/10-mail.conf, owner: root, group: root, mode: '0644' }
     - { src: gentoo/etc/dovecot/conf.d/10-logging.conf.j2, dest: /etc/dovecot/conf.d/10-logging.conf, owner: root, group: root, mode: '0644' }
     - { src: gentoo/etc/dovecot/conf.d/10-ssl.conf.j2, dest: /etc/dovecot/conf.d/10-ssl.conf, owner: root, group: root, mode: '0644' }
+    - { src: gentoo/etc/dovecot/conf.d/15-lda.conf.j2, dest: /etc/dovecot/conf.d/15-lda.conf, owner: root, group: root, mode: '0644' }
   notify:
     - restart dovecot
 
 - name: create initscript link
   file:
-    src: /etc/init.d/dovecot
-    dest: /etc/runlevels/default/dovevot
+    src: "/etc/init.d/{{ item }}"
+    dest: "/etc/runlevels/default/{{ item }}"
     state: link
+  with_items:
+    - dovecot
+    - saslauthd
 
 - name: start initscript
   service:
-    name: dovecot
+    name: "{{ item }}"
     state: started
+  with_items:
+    - dovecot
+    - saslauthd

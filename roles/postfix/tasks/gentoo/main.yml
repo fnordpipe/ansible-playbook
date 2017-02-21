@@ -34,4 +34,5 @@
 - name: start initscript
   service:
     name: postfix
+    pattern: "postfix/master"
     state: started
