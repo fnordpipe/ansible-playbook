@@ -9,15 +9,17 @@
     - dev-python/psycopg
 
 - name: create certificate key for postgres
+  command: "cp /etc/ssl/{{ inventory_hostname }}-key.pem /etc/ssl/{{ inventory_hostname }}-key.pg.pem"
+  args:
+    creates: "/etc/ssl/{{ inventory_hostname }}-key.pg.pem"
+
+- name: update permissions of postgres key
   file:
-    src: "/etc/ssl/{{ inventory_hostname }}-key.pem"
     dest: "/etc/ssl/{{ inventory_hostname }}-key.pg.pem"
     owner: postgres
     group: postgres
     mode: '0600'
-    state: hard
-  notify:
-    - restart postgresql
+    state: file
 
 - name: stat /var/lib/postgresql/9.5
   stat:
