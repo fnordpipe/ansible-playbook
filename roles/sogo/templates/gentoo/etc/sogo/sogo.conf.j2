@@ -1,0 +1,78 @@
+{
+  /* Database configuration (mysql:// or postgresql://) */
+  SOGoProfileURL = "postgresql://{{ sogoConfig['postgres']['profile']['username'] }}:{{ sogoConfig['postgres']['profile']['password'] }}@{{ sogoConfig['postgres']['host'] }}:5432/{{ sogoConfig['postgres']['profile']['username'] }}/sogo_user_profile";
+  OCSFolderInfoURL = "postgresql://{{ sogoConfig['postgres']['folder']['username'] }}:{{ sogoConfig['postgres']['folder']['password'] }}@{{ sogoConfig['postgres']['host'] }}:5432/{{ sogoConfig['postgres']['folder']['username'] }}/sogo_folder_info";
+  OCSSessionsFolderURL = "postgresql://{{ sogoConfig['postgres']['session']['username'] }}:{{ sogoConfig['postgres']['session']['password'] }}@{{ sogoConfig['postgres']['host'] }}:5432/{{ sogoConfig['postgres']['session']['username'] }}/sogo_sessions_folder";
+
+  /* Mail */
+  //SOGoDraftsFolderName = Drafts;
+  //SOGoSentFolderName = Sent;
+  //SOGoTrashFolderName = Trash;
+  SOGoIMAPServer = imaps://{{ sogoConfig['imap'] }}:993;
+  //SOGoSieveServer = sieve://127.0.0.1:4190;
+  SOGoSMTPServer = {{ sogoConfig['smtp'] }};
+  SOGoMailDomain = {{ sogoConfig['domain'] }};
+  //SOGoMailingMechanism = smtp;
+  //SOGoForceExternalLoginWithEmail = NO;
+  //SOGoMailSpoolPath = /var/spool/sogo;
+  //NGImap4ConnectionStringSeparator = "/";
+
+  /* Notifications */
+  //SOGoAppointmentSendEMailNotifications = NO;
+  //SOGoACLsSendEMailNotifications = NO;
+  //SOGoFoldersSendEMailNotifications = NO;
+
+  /* Authentication */
+  SOGoPasswordChangeEnabled = NO;
+
+  /* LDAP authentication example */
+  SOGoUserSources = (
+    {
+      type = ldap;
+      CNFieldName = cn;
+      UIDFieldName = uid;
+      //IDFieldName = uid; // first field of the DN for direct binds
+      bindFields = (uid); // array of fields to use for indirect binds
+      baseDN = "{{ sogoConfig['ldap']['baseDN'] }}";
+      //bindDN = "{{ sogoConfig['ldap']['bindDN'] }}";
+      //bindPassword = {{ sogoConfig['ldap']['bindPassword'] }};
+      canAuthenticate = YES;
+      displayName = "{{ sogoConfig['ldap']['displayName'] }}";
+      hostname = ldaps://{{ sogoConfig['ldap']['hostname'] }}:636;
+      id = default;
+      isAddressBook = {{ sogoConfig['ldap']['isAddressBook'] }};
+    }
+  );
+
+  /* Web Interface */
+  SOGoPageTitle = {{ sogoConfig['title'] }};
+  //SOGoVacationEnabled = YES;
+  //SOGoForwardEnabled = YES;
+  //SOGoSieveScriptsEnabled = YES;
+  //SOGoMailAuxiliaryUserAccountsEnabled = YES;
+  //SOGoTrustProxyAuthentication = NO;
+  //SOGoXSRFValidationEnabled = YES;
+
+  /* General - SOGoTimeZone *MUST* be defined */
+  //SOGoLanguage = English;
+  SOGoTimeZone = Etc/UTC;
+  //SOGoCalendarDefaultRoles = (
+  //  PublicDAndTViewer,
+  //  ConfidentialDAndTViewer
+  //);
+  SOGoSuperUsernames = (crito); // This is an array - keep the parens!
+  //SxVMemLimit = 384;
+  //WOPidFile = "/var/run/sogo/sogo.pid";
+  //SOGoMemcachedHost = "/var/run/memcached.sock";
+  
+  /* Debug */
+  //SOGoDebugRequests = YES;
+  //SoDebugBaseURL = YES;
+  //ImapDebugEnabled = YES;
+  //LDAPDebugEnabled = YES;
+  //PGDebugEnabled = YES;
+  //MySQL4DebugEnabled = YES;
+  //SOGoUIxDebugEnabled = YES;
+  //WODontZipResponse = YES;
+  //WOLogFile = /var/log/sogo/sogo.log;
+}
