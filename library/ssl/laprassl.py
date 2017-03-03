@@ -87,25 +87,30 @@ laprassl:
             sample: CN=example.org O=example
 '''
 
+# import module
+import os.path
+
 # import module snippets
 from ansible.module_utils.basic import AnsibleModule
 
 class AnsibleWrapper:
     args = None
     module = None
-    userInfo = None
+    laprassl = None
+    changed = None
 
     def __init__(self):
         self.module = AnsibleModule(
             argument_spec = dict(
-                crt = dict(required = True, type = 'str'),
-                key = dict(required = True, type = 'str'),
-                keytype = dict(required = True, type = 'str'),
-                keysize = dict(required = True, type = 'int'),
+                crt = dict(required = False, type = 'str'),
+                key = dict(required = False, type = 'str'),
+                keytype = dict(required = False, default = 'ec', type = 'str'),
+                keysize = dict(required = False, default = 4096 type = 'int'),
                 authkey = dict(required = True, type = 'str'),
                 subject = dict(required = True, type = 'str'),
                 profile = dict(required = True, type = 'str'),
                 url = dict(required = True, type = 'str'),
+                lifetime = dict(required = False, default = 5, type = 'str'),
             ),
             supports_check_mode = False
         )
@@ -118,18 +123,42 @@ class AnsibleWrapper:
             'authkey': self.module.params.get('authkey'),
             'subject': self.module.params.get('subject'),
             'profile': self.module.params.get('profile'),
-            'url': self.module.params.get('url')
+            'url': self.module.params.get('url'),
+            'lifetime': self.module.params.get('lifetime')
         }
 
+        self.laprassl = LaprasslClient(self.args)
+
+    def create_crt(self):
+        if not os.path.exists(self.args.crt):
+            self.write(self.args.crt, self.laprassl.crt())
+            self.changed = True
+        else
+            with open(self.args.crt, 'r') as fh:
+                content = fh.read()
+
+            if self.laprassl.getLifetime(content) < self.args.lifetime:
+                self.write(self.args.crt, self.laprassl.crt())
+                self.changed = True
+
+    def create_key(self):
+        if not os.path.exists(self.args.key):
+            self.write(self.args.key, self.laprassl.key())
+            self.changed = True
+
+    def write(self, path, content):
+        try:
+            with open(path, 'w') as fh:
+                fh.write(content)
+        except IOError e:
+            self.module.fail_json(msg = 'failed to create key: %s' % (e))
+
     def run(self):
-        self.module.exit_json(
-            changed = False,
-            laprassl = {
-                'valid_to': self.laprassl['valid_to']
-                'valid_from': self.laprassl['valid_from']
-                'valid_subject': self.laprassl['valid_subject']
-            }
-        )
+        if self.args.key != None:
+            self.create_key()
+
+        if self.args.crt != None:
+            self.create_crt()
 
 if __name__ == '__main__':
     AnsibleWrapper().run()
