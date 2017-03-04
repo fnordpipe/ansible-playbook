@@ -89,9 +89,55 @@ laprassl:
 
 # import module
 import os.path
+import requests
 
 # import module snippets
 from ansible.module_utils.basic import AnsibleModule
+
+class LaprasslClient:
+    args = None
+
+    def __init__(self, args):
+        self.args = args
+
+    def crt(self, csr):
+        payload = {
+            'authkey': self.args.authkey,
+            'profile': self.args.profile,
+            'csr': csr
+        }
+
+        json = requests.post('%s/v1/crt' % self.args.url, data = payload).json
+
+        return json['crt']
+
+    def csr(self, key):
+        payload = {
+            'cn': '', o = [], ou = [], st = [], l = [], c = [],
+            'key' key
+        }
+        subject = self.args.subject.split(', ')
+
+        for k, v in subject:
+            s = v.split('=')
+            if s[0] == 'cn':
+                payload['cn'] = s[1]
+            else
+                payload[s[0]].append(s[1])
+
+        json = requests.post('%s/v1/csr' % self.args.url, data = payload).json()
+
+        return json['csr']
+
+    def key(self):
+        if self.args.keytype == "ec":
+            payload = { 'keytype': 'ec' }
+        else if self.args.keytype == "rsa":
+            payload = { 'keytype': 'rsa', 'keysize': self.args.keysize }
+
+        json = requests.post('%s/v1/key' % self.args.url, data = payload).json()
+
+        return json['key']
 
 class AnsibleWrapper:
     args = None
@@ -129,21 +175,26 @@ class AnsibleWrapper:
 
         self.laprassl = LaprasslClient(self.args)
 
-    def create_crt(self):
+    def create_crt(self, key):
         if not os.path.exists(self.args.crt):
-            self.write(self.args.crt, self.laprassl.crt())
+            csr = self.laprassl.csr(key)
+            crt = self.laprassl.crt(csr)
+            self.write(self.args.crt, crt)
             self.changed = True
         else
             with open(self.args.crt, 'r') as fh:
                 content = fh.read()
 
             if self.laprassl.getLifetime(content) < self.args.lifetime:
-                self.write(self.args.crt, self.laprassl.crt())
+                csr = self.laprassl.csr(key)
+                crt = self.laprassl.crt(csr)
+                self.write(self.args.crt, crt)
                 self.changed = True
 
     def create_key(self):
         if not os.path.exists(self.args.key):
-            self.write(self.args.key, self.laprassl.key())
+            key = self.laprassl.key()
+            self.write(self.args.key, key)
             self.changed = True
 
     def write(self, path, content):
@@ -155,10 +206,10 @@ class AnsibleWrapper:
 
     def run(self):
         if self.args.key != None:
-            self.create_key()
+            key = self.create_key()
 
         if self.args.crt != None:
-            self.create_crt()
+            crt = self.create_crt(key)
 
 if __name__ == '__main__':
     AnsibleWrapper().run()
