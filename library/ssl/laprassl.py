@@ -12,12 +12,12 @@ options:
     crt:
         description:
             - path to certificate
-        required: True
+        required: False
         default: null
     key:
         description:
             - path to key file
-        required: True
+        required: False
         default: null
     keytype:
         description:
