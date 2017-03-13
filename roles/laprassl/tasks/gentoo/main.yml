@@ -1,0 +1,18 @@
+---
+- name: install packages
+  portage:
+    name: app-crypt/laprassl
+    getbinpkg: yes
+    quiet: yes
+
+- name: create ca config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: nginx
+    group: nginx
+    mode: 0640
+  with_items:
+    - { src: "gentoo/etc/laprassl/config.lua.j2", dest: "/etc/laprassl/config.lua" }
+  notify:
+    - restart nginx
