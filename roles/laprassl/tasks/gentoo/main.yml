@@ -16,3 +16,8 @@
     - { src: "gentoo/etc/laprassl/config.lua.j2", dest: "/etc/laprassl/config.lua" }
   notify:
     - restart nginx
+
+- name: bootstrap ca
+  shell: "lua /usr/share/webapps/laprassl/9999/bootstrap.lua"
+  args:
+    creates: "/var/lib/laprassl/{{ inventory_hostname }}crt.pem"
