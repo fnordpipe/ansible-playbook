@@ -38,3 +38,15 @@
   args:
     creates: "/var/lib/laprassl/{{ inventory_hostname }}.crt.pem"
     chdir: "/usr/share/webapps/laprassl/9999"
+
+- name: create nginx config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+    - { src: "gentoo/etc/nginx/conf.d/laprassl.conf.j2", dest: "/etc/nginx/conf.d/laprassl.conf" }
+  notify:
+    - restart nginx
