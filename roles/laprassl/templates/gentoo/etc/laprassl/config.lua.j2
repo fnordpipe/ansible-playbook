@@ -1,5 +1,5 @@
 local config = {
-  data = "/var/lib/laprassl",
+  data = "./data",
   profiles = {
 {% for profile in laprasslConfig['profiles'] %}
     {{ profile['name'] }} = {

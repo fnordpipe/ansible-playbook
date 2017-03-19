@@ -34,9 +34,9 @@
     - restart nginx
 
 - name: bootstrap ca
-  shell: "lua /usr/share/webapps/laprassl/9999/bootstrap.lua"
+  shell: "source /etc/profile && lua /usr/share/webapps/laprassl/9999/bootstrap.lua"
   args:
-    creates: "/var/lib/laprassl/{{ inventory_hostname }}.crt.pem"
+    creates: "./data/{{ inventory_hostname }}.crt.pem"
     chdir: "/usr/share/webapps/laprassl/9999"
 
 - name: create nginx config
