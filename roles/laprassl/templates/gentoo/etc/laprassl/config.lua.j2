@@ -37,7 +37,7 @@ local config = {
         emailAddress = "{{ entity['email'] }}"
 {% endif %}
       },
-      profile = "{{ entity['cn'] | default(inventory_hostname) }}"
+      profile = "{{ entity['profile'] }}"
     }{% if not loop.last %},{% endif %}
 {% endfor %}
   }
