@@ -59,7 +59,7 @@ EXAMPLES = '''
     crt: "/etc/ssl/{{ inventory_hostname}}.crt.pem"
     key: "/etc/ssl/{{ inventory_hostname}}.key.pem"
     authkey: changeme
-    subject: CN=example.org O=example org O=example organization
+    subject: "CN=example.org, O=example org, O=example organization"
     profile: server
     url: https://127.0.0.1
 '''
@@ -148,15 +148,16 @@ class AnsibleWrapper:
     def __init__(self):
         self.module = AnsibleModule(
             argument_spec = dict(
-                crt = dict(required = False, type = 'str'),
-                key = dict(required = False, type = 'str'),
+                crt = dict(required = False, type = 'path'),
+                key = dict(required = False, type = 'path'),
+                ca = dict(required = False, type = 'path'),
                 keytype = dict(required = False, default = 'ec', type = 'str'),
                 keysize = dict(required = False, default = 4096 type = 'int'),
                 authkey = dict(required = True, type = 'str'),
                 subject = dict(required = True, type = 'str'),
                 profile = dict(required = True, type = 'str'),
                 url = dict(required = True, type = 'str'),
-                lifetime = dict(required = False, default = 5, type = 'str'),
+                lifetime = dict(required = False, default = 5, type = 'str')
             ),
             supports_check_mode = False
         )
@@ -195,21 +196,31 @@ class AnsibleWrapper:
         if not os.path.exists(self.args.key):
             key = self.laprassl.key()
             self.write(self.args.key, key)
-            self.changed = True
+            changed = True
+        else:
+            changed = False
+
+        return changed
 
     def write(self, path, content):
         try:
             with open(path, 'w') as fh:
                 fh.write(content)
         except IOError e:
-            self.module.fail_json(msg = 'failed to create key: %s' % (e))
+            self.module.fail_json(msg = 'failed to create file: %s' % (e))
 
     def run(self):
         if self.args.key != None:
-            key = self.create_key()
+            changed = self.create_key()
+            file_args = self.module.load_common_arguments(self.module.params)
+            file_args['path'] = self.args.key
+            self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
 
         if self.args.crt != None:
-            crt = self.create_crt(key)
+            changed = self.create_crt(key)
+            file_args = self.module.load_common_arguments(self.module.params)
+            file_args['path'] = self.args.crt
+            self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
 
 if __name__ == '__main__':
     AnsibleWrapper().run()
