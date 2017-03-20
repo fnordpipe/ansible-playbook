@@ -27,17 +27,17 @@
     mode: 0640
     state: file
 
-- name: create host csr config
-  template:
-    src: "{{ item['src'] }}"
-    dest: "{{ item['dest'] }}"
-    owner: "{{ item['owner'] }}"
-    group: "{{ item['group'] }}"
-    mode: "{{ item['mode'] }}"
-  with_items:
-    - { src: gentoo/etc/cfssl/csr/srv.json.j2, dest: "/etc/cfssl/csr/{{ inventory_hostname }}.json", owner: cfssl, group: cfssl, mode: '0640' }
-
-- name: include certificate generation
-  include: ssl.yml
+- name: create host certificate
+  laprassl:
+    crt: "/etc/ssl/{{ inventory_hostname }}.crt.pem"
+    key: "/etc/ssl/{{ inventory_hostname }}.key.pem"
+    ca: /etc/ssl/ca.crt.pem
+    authkey: "{{ sslConfig['authkey'] }}"
+    subject: "CN={{ inventory_hostname }}, C={{ sslConfig['C'] }}, L={{ sslConfig['L'] }}, ST={{ sslConfig['ST'] }}, O={{ sslConfig['O'] }}, OU={{ sslConfig['OU'] }}"
+    profile: "{{ sslConfig['profile'] }}"
+    url: "{{ sslConfig['url'] }}"
+    owner: root
+    group: ssl
+    mode: 0640
   when:
-    - inventory_hostname not in groups['cfssl']
+    - inventory_hostname not in groups['laprassl']
