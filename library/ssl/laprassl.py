@@ -100,6 +100,19 @@ class LaprasslClient:
     def __init__(self, args):
         self.args = args
 
+    def ca(self, crt):
+        payload = {
+            'crt': crt
+        }
+
+        json = requests.post('%s/v1/x509/ca' % self.args.url, data = payload).json
+
+        ca = ""
+        for result in json['crt']:
+            ca = ca + result
+
+        return ca
+
     def crt(self, csr):
         payload = {
             'authkey': self.args.authkey,
@@ -107,7 +120,7 @@ class LaprasslClient:
             'csr': csr
         }
 
-        json = requests.post('%s/v1/crt' % self.args.url, data = payload).json
+        json = requests.post('%s/v1/x509/crt' % self.args.url, data = payload).json
 
         return json['crt']
 
@@ -125,7 +138,7 @@ class LaprasslClient:
             else
                 payload[s[0]].append(s[1])
 
-        json = requests.post('%s/v1/csr' % self.args.url, data = payload).json()
+        json = requests.post('%s/v1/x509/csr' % self.args.url, data = payload).json()
 
         return json['csr']
 
@@ -176,6 +189,15 @@ class AnsibleWrapper:
 
         self.laprassl = LaprasslClient(self.args)
 
+    def create_ca(self):
+        changed = False
+        if not os.path.exists(self.args.ca):
+            ca = self.laprassl.ca(self.args.crt)
+            self.write(self.args.ca, ca)
+            changed = True
+
+        return changed
+
     def create_crt(self, key):
         if not os.path.exists(self.args.crt):
             csr = self.laprassl.csr(key)
@@ -220,6 +242,12 @@ class AnsibleWrapper:
             changed = self.create_crt(key)
             file_args = self.module.load_common_arguments(self.module.params)
             file_args['path'] = self.args.crt
+            self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
+
+        if self.args.ca != None and self.args.crt != None:
+            changed = self.create_ca()
+            file_args = self.module.load_common_arguments(self.module.params)
+            file_args['path'] = self.args.ca
             self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
 
 if __name__ == '__main__':
