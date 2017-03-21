@@ -19,7 +19,8 @@ local config = {
 {% endfor %}
       }{% endif %},
       expiry = "{{ profile['expiry'] }}"{% if profile['issuer'] is defined %},
-      issuer = "{{ profile['issuer'] }}"
+      issuer = "{{ profile['issuer'] }}"{% endif %}{% if profile['cn'] is defined %},
+      cn = "{{ profile['cn'] }}"
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}
