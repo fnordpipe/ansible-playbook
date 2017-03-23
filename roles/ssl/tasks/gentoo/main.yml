@@ -6,7 +6,7 @@
     quiet: yes
     state: present
   with_items:
-    - app-crypt/cfssl
+    - dev-python/requests
 
 - name: create ssl group
   group:
@@ -35,7 +35,7 @@
     authkey: "{{ sslConfig['authkey'] }}"
     subject: "CN={{ inventory_hostname }}, C={{ sslConfig['C'] }}, L={{ sslConfig['L'] }}, ST={{ sslConfig['ST'] }}, O={{ sslConfig['O'] }}, OU={{ sslConfig['OU'] }}"
     profile: "{{ sslConfig['profile'] }}"
-    url: "{{ sslConfig['url'] }}"
+    url: "https://{{ sslConfig['url'] }}"
     owner: root
     group: ssl
     mode: 0640
