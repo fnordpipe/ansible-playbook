@@ -105,7 +105,8 @@ class LaprasslClient:
             'crt': crt
         }
 
-        json = requests.post('%s/v1/x509/ca' % self.args['url'], data = payload).json
+        json = requests.post('%s/v1/x509/ca' % self.args['url'], data = payload)
+        print(json.text)
 
         ca = ""
         for result in json['crt']:
@@ -120,7 +121,7 @@ class LaprasslClient:
             'csr': csr
         }
 
-        json = requests.post('%s/v1/x509/crt' % self.args['url'], data = payload).json
+        json = requests.post('%s/v1/x509/crt' % self.args['url'], data = payload).json()
 
         return json['crt']
 
@@ -129,14 +130,14 @@ class LaprasslClient:
             'cn': '', 'o': [], 'ou': [], 'st': [], 'l': [], 'c': [],
             'key': key
         }
-        subject = self.args['subject'].split(', ')
+        subject = self.args['subject'].split(", ")
 
-        for k, v in subject:
+        for v in subject:
             s = v.split('=')
-            if s[0] == 'cn':
+            if s[0].lower() == 'cn':
                 payload['cn'] = s[1]
-            elif s[0] != 'key':
-                payload[s[0]].append(s[1])
+            else:
+                payload[s[0].lower()].append(s[1])
 
         json = requests.post('%s/v1/x509/csr' % self.args['url'], data = payload).json()
 
@@ -177,6 +178,7 @@ class AnsibleWrapper:
         )
 
         self.args = {
+            'ca': self.module.params.get('ca'),
             'crt': self.module.params.get('crt'),
             'key': self.module.params.get('key'),
             'keytype': self.module.params.get('keytype'),
@@ -193,27 +195,36 @@ class AnsibleWrapper:
     def create_ca(self):
         changed = False
         if not os.path.exists(self.args['ca']):
-            ca = self.laprassl.ca(self.args['crt'])
+            with open(self.args['crt']) as fh:
+                crtfile = fh.read()
+
+            ca = self.laprassl.ca(crtfile)
             self.write(self.args['ca'], ca)
             changed = True
 
         return changed
 
     def create_crt(self):
+        changed = False
+        with open(self.args['key'], 'r') as fh:
+            keyfile = fh.read()
+
         if not os.path.exists(self.args['crt']):
-            csr = self.laprassl.csr(self.args['key'])
+            csr = self.laprassl.csr(keyfile)
             crt = self.laprassl.crt(csr)
             self.write(self.args['crt'], crt)
-            self.changed = True
+            changed = True
         else:
             with open(self.args['crt'], 'r') as fh:
                 content = fh.read()
 
             if self.laprassl.getLifetime(content) < self.args['lifetime']:
-                csr = self.laprassl.csr(self.args['key'])
+                csr = self.laprassl.csr(keyfile)
                 crt = self.laprassl.crt(csr)
                 self.write(self.args.crt, crt)
-                self.changed = True
+                changed = True
+
+        return changed
 
     def create_key(self):
         if not os.path.exists(self.args['key']):
@@ -235,19 +246,25 @@ class AnsibleWrapper:
     def run(self):
         if self.args['key'] != None:
             changed = self.create_key()
-            file_args = self.module.load_file_common_arguments(self.module.params)
+            params = self.module.params
+            params['path'] = self.args['key']
+            file_args = self.module.load_file_common_arguments(params)
             file_args['path'] = self.args['key']
             self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
 
         if self.args['crt'] != None:
             changed = self.create_crt()
-            file_args = self.module.load_file_common_arguments(self.module.params)
+            params = self.module.params
+            params['path'] = self.args['crt']
+            file_args = self.module.load_file_common_arguments(params)
             file_args['path'] = self.args['crt']
             self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
 
         if self.args['ca'] != None and self.args['crt'] != None:
             changed = self.create_ca()
-            file_args = self.module.load_file_common_arguments(self.module.params)
+            params = self.module.params
+            params['path'] = self.args['ca']
+            file_args = self.module.load_file_common_arguments(params)
             file_args['path'] = self.args['ca']
             self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
 
