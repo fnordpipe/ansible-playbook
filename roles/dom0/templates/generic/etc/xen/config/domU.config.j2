@@ -2,14 +2,14 @@ kernel = '{{ hostvars[domUItem]['dom0Config']['kernel'] | default('/boot/kernel'
 memory = {{ hostvars[domUItem]['dom0Config']['memory'] | default('4096') }}
 maxmem = {{ hostvars[domUItem]['dom0Config']['memory'] | default('4096') }}
 vcpus = {{ hostvars[domUItem]['dom0Config']['vcpus'] | default('2') }}
-name = '{{ domUItem.split('.')[0] }}'
+name = '{{ domUItem.replace('.', '') }}'
 
 vif = [
   'mac={{ domUMac }}, bridge={{ hostvars[ domUItem ]['dom0Config']['bridge'] | default('br0') }}'
 ]
 
 disk = [
-  'phy:/dev/mapper/{{ domUItem.split('.')[1] }}-{{ domUItem.split('.')[0] }},xvda,w'
+  'phy:/dev/mapper/{{ domUItem.split('.')[1] }}-{{ domUItem.replace('.', '') }},xvda,w'
 ]
 root = '/dev/xvda'
 
