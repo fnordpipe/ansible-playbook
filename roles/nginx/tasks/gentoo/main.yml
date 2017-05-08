@@ -42,19 +42,9 @@
 
 - name: include nginx profile (dirlisting)
   include: dirlisting.yml
-  when: nginxConfig['profiles']['dirlisting'] is defined
+  when: ((nginxConfig | default({}))['profiles'] | default({}))['dirlisting'] is defined
 
 - name: start service
   service:
     name: nginx
     state: started
-
-- name: create certificate file
-  shell: "cat {{ inventory_hostname }}.pem rootca.pem > /etc/ssl/{{ inventory_hostname }}-nginx.pem"
-  args:
-    chdir: /var/lib/cfssl
-  when:
-    - sslHostCert.changed == True
-    - inventory_hostname not in groups['cfssl']
-  notify:
-    - restart nginx
