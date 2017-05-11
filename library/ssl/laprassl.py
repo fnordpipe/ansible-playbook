@@ -47,7 +47,12 @@ options:
     url:
         description:
             - url of the laprassl server
-        required: True
+        required: False
+        default: null
+    file:
+        description:
+            - location at filesystem of the certificates/key
+        required: False
         default: null
 requirements:
     - 'python >= 2.6 # OS package'
@@ -56,8 +61,8 @@ requirements:
 EXAMPLES = '''
 # create a certificate for the inventory host
 - laprassl:
-    crt: "/etc/ssl/{{ inventory_hostname}}.crt.pem"
-    key: "/etc/ssl/{{ inventory_hostname}}.key.pem"
+    crt: "/etc/ssl/{{ inventory_hostname }}.crt.pem"
+    key: "/etc/ssl/{{ inventory_hostname }}.key.pem"
     authkey: changeme
     subject: "CN=example.org, O=example org, O=example organization"
     profile: server
@@ -170,7 +175,8 @@ class AnsibleWrapper:
                 authkey = dict(required = True, type = 'str'),
                 subject = dict(required = True, type = 'str'),
                 profile = dict(required = True, type = 'str'),
-                url = dict(required = True, type = 'str'),
+                url = dict(required = False, type = 'str'),
+                file = dict(required = False, type = 'str'),
                 lifetime = dict(required = False, default = 5, type = 'str')
             ),
             add_file_common_args = True,
@@ -187,6 +193,7 @@ class AnsibleWrapper:
             'subject': self.module.params.get('subject'),
             'profile': self.module.params.get('profile'),
             'url': self.module.params.get('url'),
+            'file': self.module.params.get('file'),
             'lifetime': self.module.params.get('lifetime')
         }
 
@@ -206,19 +213,24 @@ class AnsibleWrapper:
 
     def create_crt(self):
         changed = False
-        with open(self.args['key'], 'r') as fh:
-            keyfile = fh.read()
 
         if not os.path.exists(self.args['crt']):
-            csr = self.laprassl.csr(keyfile)
-            crt = self.laprassl.crt(csr)
-            self.write(self.args['crt'], crt)
-            changed = True
-        else:
+            if self.args['url'] != None:
+                keyfile = self.read(self.args['key'])
+                csr = self.laprassl.csr(keyfile)
+                crt = self.laprassl.crt(csr)
+            elif os.path.exists(self.args['file']):
+                crt = self.read(self.args['file'])
+
+            if crt != None:
+                self.write(self.args['crt'], crt)
+                changed = True
+        elif self.args['url'] != None:
             with open(self.args['crt'], 'r') as fh:
                 content = fh.read()
 
-            if self.laprassl.getLifetime(content) < self.args['lifetime']:
+            if self.laprassl.getLifetime(content) < self.args['lifetime'] and self.create_key(True):
+                keyfile = self.read(self.args['key'])
                 csr = self.laprassl.csr(keyfile)
                 crt = self.laprassl.crt(csr)
                 self.write(self.args.crt, crt)
@@ -226,15 +238,27 @@ class AnsibleWrapper:
 
         return changed
 
-    def create_key(self):
-        if not os.path.exists(self.args['key']):
-            key = self.laprassl.key()
-            self.write(self.args['key'], key)
-            changed = True
+    def create_key(self, renew = False):
+        if not os.path.exists(self.args['key']) or renew = True:
+            if self.args['url']:
+                key = self.laprassl.key()
+            elif os.path.exists(self.args['file']):
+                key = self.read(self.args['file'])
+
+            if key != None:
+                self.write(self.args['key'], key)
+                changed = True
         else:
             changed = False
 
         return changed
+
+    def read(self, path):
+        try:
+            with open(path, 'r') as fh:
+                content = fh.read()
+        except IOError as e:
+            self.module.fail_json(msg = 'failed to read file %s' % (e))
 
     def write(self, path, content):
         try:
