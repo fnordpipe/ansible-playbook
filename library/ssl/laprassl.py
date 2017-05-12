@@ -172,9 +172,9 @@ class AnsibleWrapper:
                 ca = dict(required = False, type = 'path'),
                 keytype = dict(required = False, default = 'ec', type = 'str'),
                 keysize = dict(required = False, default = 4096, type = 'int'),
-                authkey = dict(required = True, type = 'str'),
-                subject = dict(required = True, type = 'str'),
-                profile = dict(required = True, type = 'str'),
+                authkey = dict(required = False, type = 'str'),
+                subject = dict(required = False, type = 'str'),
+                profile = dict(required = False, type = 'str'),
                 url = dict(required = False, type = 'str'),
                 file = dict(required = False, type = 'str'),
                 lifetime = dict(required = False, default = 5, type = 'str')
@@ -239,7 +239,9 @@ class AnsibleWrapper:
         return changed
 
     def create_key(self, renew = False):
-        if not os.path.exists(self.args['key']) or renew = True:
+        changed = False
+
+        if not os.path.exists(self.args['key']) or renew == True:
             if self.args['url']:
                 key = self.laprassl.key()
             elif os.path.exists(self.args['file']):
@@ -248,8 +250,6 @@ class AnsibleWrapper:
             if key != None:
                 self.write(self.args['key'], key)
                 changed = True
-        else:
-            changed = False
 
         return changed
 
@@ -259,6 +259,8 @@ class AnsibleWrapper:
                 content = fh.read()
         except IOError as e:
             self.module.fail_json(msg = 'failed to read file %s' % (e))
+
+        return content
 
     def write(self, path, content):
         try:
@@ -291,6 +293,10 @@ class AnsibleWrapper:
             file_args = self.module.load_file_common_arguments(params)
             file_args['path'] = self.args['ca']
             self.changed = self.module.set_fs_attributes_if_different(file_args, changed)
+
+        self.module.exit_json(
+            changed = self.changed
+        )
 
 if __name__ == '__main__':
     AnsibleWrapper().run()
