@@ -26,8 +26,8 @@ local config = {
 {% endfor %}
   }{% if laprasslConfig['bootstrap'] is defined %},
   bootstrap = {
-{% for entity in laprasslConfig['bootstrap'] %}
-    {{ entity['type'] }} = {
+{% for key, entity in laprasslConfig['bootstrap'].iteritems() %}
+    {{ key }} = {
       subject = {
         CN = "{{ entity['cn'] | default(inventory_hostname) }}"{% if entity['o'] is defined %},
         O = "{{ entity['o'] }}"{% endif %}{% if entity['ou'] is defined %},

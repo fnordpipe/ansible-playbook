@@ -1,0 +1,78 @@
+---
+- name: create dhparam
+  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
+  args:
+    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+
+- name: update dh permissions
+  file:
+    dest: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+    owner: root
+    group: ssl
+    mode: 0640
+    state: file
+
+- name: "stat /var/lib/laprassl/{{ inventory_hostname }}.nginx.pem"
+  stat:
+    path: "/var/lib/laprassl/{{ inventory_hostname }}.nginx.pem"
+  register: laprasslCaFile
+
+- name: create ca config
+  template:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: nginx
+    group: nginx
+    mode: 0640
+  with_items:
+    - { src: "gentoo/etc/laprassl/config.lua.j2", dest: "/etc/laprassl/config.lua" }
+    - { src: "gentoo/etc/nginx/conf.d/laprassl.conf.j2", dest: "/etc/nginx/conf.d/laprassl.conf" }
+  notify:
+    - restart nginx
+
+- name: start nginx
+  service:
+    name: nginx
+    state: started
+
+- name: create certificate files
+  laprassl:
+    crt: "/var/lib/laprassl/{{ laprasslConfig['bootstrap'][item['profile']]['cn'] | default(inventory_hostname) }}.crt.pem"
+    key: "{{ item['prefix'] }}/{{ laprasslConfig['bootstrap'][item['profile']]['cn'] | default(inventory_hostname) }}.key.pem"
+    authkey: "{{ laprasslConfig['bootstrap'][item['profile']]['authkey'] }}"
+    subject: "CN={{ laprasslConfig['bootstrap'][item['profile']]['cn'] | default(inventory_hostname) }}, C={{ laprasslConfig['bootstrap'][item['profile']]['c'] }}, L={{ laprasslConfig['bootstrap'][item['profile']]['l'] }}, ST={{ laprasslConfig['bootstrap'][item['profile']]['st'] }}, O={{ laprasslConfig['bootstrap'][item['profile']]['o'] }}, OU={{ laprasslConfig['bootstrap'][item['profile']]['ou'] }}"
+    profile: "{{ laprasslConfig['bootstrap'][item['profile']]['profile'] }}"
+    url: "http://127.0.0.1"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  with_items:
+    - { prefix: '/usr/share/webapps/laprassl/9999/data', profile: rootca, owner: nginx, group: nginx, mode: "0600" }
+    - { prefix: '/usr/share/webapps/laprassl/9999/data', profile: subca, owner: nginx, group: nginx, mode: "0600" }
+    - { prefix: '/var/lib/laprassl', profile: host, owner: root, group: ssl, mode: "0640" }
+  notify:
+    - restart nginx
+
+- name: create ca certificate file
+  laprassl:
+    crt: "/var/lib/laprassl/{{ inventory_hostname }}.crt.pem"
+    ca: /var/lib/laprassl/ca.crt.pem
+    url: "http://127.0.0.1"
+    owner: root
+    group: ssl
+    mode: 0640
+  notify:
+    - restart nginx
+  tags:
+    - debug
+
+- name: create nginx certificate
+  nginx:
+    crt: "/var/lib/laprassl/{{ inventory_hostname }}.crt.pem"
+    ca: /var/lib/laprassl/ca.crt.pem
+    dest: "/var/lib/laprassl/{{ inventory_hostname }}.nginx.pem"
+    owner: root
+    group: ssl
+    mode: 0640
+  notify:
+    - restart nginx
