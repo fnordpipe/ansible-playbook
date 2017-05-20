@@ -1,12 +1,12 @@
 ---
 - name: create dhparam
-  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}-dh.pem 4096"
+  shell: "openssl dhparam -out /etc/ssl/{{ inventory_hostname }}.dh.pem 4096"
   args:
-    creates: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+    creates: "/etc/ssl/{{ inventory_hostname }}.dh.pem"
 
 - name: update dh permissions
   file:
-    dest: "/etc/ssl/{{ inventory_hostname }}-dh.pem"
+    dest: "/etc/ssl/{{ inventory_hostname }}.dh.pem"
     owner: root
     group: ssl
     mode: 0640
