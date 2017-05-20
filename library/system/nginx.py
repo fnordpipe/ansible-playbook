@@ -78,6 +78,7 @@ class AnsibleWrapper:
         self.changed = False
 
     def run(self):
+      nginx = None
       if os.path.exists(self.args['crt']) and os.path.exists(self.args['ca']):
         try:
           with open(self.args['crt'], 'r') as fh:
