@@ -96,6 +96,10 @@ laprassl:
 import os.path
 import requests
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+import datetime
+
 # import module snippets
 from ansible.module_utils.basic import AnsibleModule
 
@@ -110,11 +114,10 @@ class LaprasslClient:
             'crt': crt
         }
 
-        json = requests.post('%s/v1/x509/ca' % self.args['url'], data = payload)
-        print(json.text)
+        json = requests.post('%s/v1/x509/ca' % self.args['url'], data = payload).json()
 
         ca = ""
-        for result in json['crt']:
+        for result in json['ca']:
             ca = ca + result
 
         return ca
@@ -158,6 +161,18 @@ class LaprasslClient:
 
         return json['key']
 
+    def requireRenewal(self, path, lifetime):
+        with open(path, 'rb') as fh:
+            crt = fh.read()
+
+        data = x509.load_pem_x509_certificate(crt, default_backend())
+        date = data.not_valid_after - datetime.timedelta(days = lifetime)
+
+        if datetime.datetime.now() <= date:
+            return False
+        else:
+            return True
+
 class AnsibleWrapper:
     args = None
     module = None
@@ -177,7 +192,7 @@ class AnsibleWrapper:
                 profile = dict(required = False, type = 'str'),
                 url = dict(required = False, type = 'str'),
                 file = dict(required = False, type = 'str'),
-                lifetime = dict(required = False, default = 5, type = 'str')
+                lifetime = dict(required = False, default = 5, type = 'int')
             ),
             add_file_common_args = True,
             supports_check_mode = False
@@ -202,7 +217,7 @@ class AnsibleWrapper:
     def create_ca(self):
         changed = False
         if not os.path.exists(self.args['ca']):
-            with open(self.args['crt']) as fh:
+            with open(self.args['crt'], 'r') as fh:
                 crtfile = fh.read()
 
             ca = self.laprassl.ca(crtfile)
@@ -226,10 +241,7 @@ class AnsibleWrapper:
                 self.write(self.args['crt'], crt)
                 changed = True
         elif self.args['url'] != None:
-            with open(self.args['crt'], 'r') as fh:
-                content = fh.read()
-
-            if self.laprassl.getLifetime(content) < self.args['lifetime'] and self.create_key(True):
+            if self.laprassl.requireRenewal(self.args['crt'], self.args['lifetime']) and self.create_key(True):
                 keyfile = self.read(self.args['key'])
                 csr = self.laprassl.csr(keyfile)
                 crt = self.laprassl.crt(csr)
