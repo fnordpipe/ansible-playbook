@@ -95,6 +95,8 @@
     - net-misc/bridge-utils
     - app-admin/syslog-ng
     - net-misc/curl
+    - app-misc/update-utility
+    - sys-process/vixie-cron
 
 - name: create network initscripts
   file:
@@ -118,6 +120,7 @@
   with_items:
     - { src: /etc/init.d/sshd, dest: /etc/runlevels/default/sshd }
     - { src: /etc/init.d/syslog-ng, dest: /etc/runlevels/default/syslog-ng }
+    - { src: /etc/init.d/vixie-cron, dest: /etc/runlevels/default/vixie-cron }
 
 - name: start network services
   service:
@@ -132,11 +135,20 @@
   with_items:
     - sshd
     - syslog-ng
+    - vixie-cron
 
 - name: copy ldap config
   template:
     src: gentoo/etc/openldap/ldap.conf.j2
     dest: /etc/openldap/ldap.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create /etc/crontab
+  template:
+    src: gentoo/etc/crontab.j2
+    dest: /etc/crontab
     owner: root
     group: root
     mode: 0644
