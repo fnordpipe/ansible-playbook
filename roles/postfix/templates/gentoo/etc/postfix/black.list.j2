@@ -1,7 +1,0 @@
-# ip/cidr     action
-
-{% if (postfixConfig | default({}))['blacklist'] is defined %}
-{% for item in postfixConfig['blacklist'] %}
-{{ item }}    REJECT Blacklisted
-{% endfor %}
-{% endif %}

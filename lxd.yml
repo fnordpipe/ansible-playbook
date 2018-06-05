@@ -1,7 +1,0 @@
----
-- name: assign lxd role
-  hosts: lxd
-  remote_user: root
-
-  roles:
-  - lxd

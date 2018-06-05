@@ -1,8 +1,0 @@
----
-- name: include master definition
-  include: master.yml
-  when: buildbotConfig['master'] is defined
-
-- name: include slave definition
-  include: slave.yml
-  when: buildbotConfig['slave'] is defined

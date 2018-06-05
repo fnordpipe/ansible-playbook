@@ -1,7 +1,0 @@
----
-- name: assign mariadb role
-  hosts: mariadb
-  remote_user: root
-
-  roles:
-  - mariadb

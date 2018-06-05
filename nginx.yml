@@ -1,7 +1,0 @@
----
-- name: assign nginx role
-  hosts: nginx
-  remote_user: root
-
-  roles:
-  - nginx

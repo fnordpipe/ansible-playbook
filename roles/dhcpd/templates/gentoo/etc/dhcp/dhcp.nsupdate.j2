@@ -1,3 +1,0 @@
-server {{ dhcpdConfig['dnsServers'] }} 53
-update add {{ inventory_hostname }} 3600 a {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
-send

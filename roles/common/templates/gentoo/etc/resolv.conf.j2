@@ -1,5 +1,0 @@
-domain {{ inventory_hostname | getDomain }}
-search {{ inventory_hostname | getDomain }}
-{% for ns in commonConfig['network']['nsServer'] %}
-nameserver {{ ns }}
-{% endfor %}

@@ -1,7 +1,0 @@
----
-- name: assign git role
-  hosts: git
-  remote_user: root
-
-  roles:
-  - git

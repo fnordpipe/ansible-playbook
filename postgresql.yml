@@ -1,7 +1,0 @@
----
-- name: assign postgresql role
-  hosts: postgresql
-  remote_user: root
-
-  roles:
-  - postgresql

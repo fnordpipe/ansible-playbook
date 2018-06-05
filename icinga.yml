@@ -1,7 +1,0 @@
----
-- name: assign icinga role
-  hosts: icinga
-  remote_user: root
-
-  roles:
-  - icinga

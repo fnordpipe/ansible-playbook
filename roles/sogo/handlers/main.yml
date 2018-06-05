@@ -1,5 +1,0 @@
----
-- name: restart sogo
-  service:
-    name: sogod
-    state: restarted

@@ -1,7 +1,0 @@
----
-- name: assign dovecot role
-  hosts: dovecot
-  remote_user: root
-
-  roles:
-  - dovecot

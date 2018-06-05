@@ -1,7 +1,0 @@
----
-- name: assign phpmyadmin role
-  hosts: phpmyadmin
-  remote_user: root
-
-  roles:
-  - phpmyadmin

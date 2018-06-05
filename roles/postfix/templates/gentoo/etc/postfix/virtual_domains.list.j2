@@ -1,5 +1,0 @@
-{% if (postfixConfig | default({}))['virtual_domains'] is defined %}
-{% for domain in postfixConfig['virtual_domains'] %}
-{{ domain }}
-{% endfor %}
-{% endif %}

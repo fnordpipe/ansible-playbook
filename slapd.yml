@@ -1,7 +1,0 @@
----
-- name: assign slapd role
-  hosts: slapd
-  remote_user: root
-
-  roles:
-  - slapd

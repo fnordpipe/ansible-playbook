@@ -1,7 +1,0 @@
----
-- name: assign sogo role
-  hosts: sogo
-  remote_user: root
-
-  roles:
-  - sogo

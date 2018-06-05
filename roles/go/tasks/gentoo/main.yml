@@ -1,6 +1,0 @@
----
-- name: install packages
-  portage:
-    name: dev-lang/go
-    getbinpkg: yes
-    quiet: yes

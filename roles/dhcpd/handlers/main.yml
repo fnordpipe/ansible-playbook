@@ -1,7 +1,0 @@
----
-# dhcpd handlers
-
-- name: restart dhcpd
-  service:
-    name: dhcpd
-    state: restarted

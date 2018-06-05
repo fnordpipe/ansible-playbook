@@ -1,8 +1,0 @@
-bind = yes
-bind_dn = {{ postfixConfig['ldap']['bind_dn'] }}
-bind_pw = {{ postfixConfig['ldap']['pw'] }}
-server_host = {{ postfixConfig['ldap']['server_host'] }}
-search_base = {{ postfixConfig['ldap']['search_base'] }}
-query_filter = (&(objectClass=posixAccount)(mail=%s))
-result_attribute = mail
-version = 3

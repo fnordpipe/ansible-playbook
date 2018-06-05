@@ -1,5 +1,0 @@
----
-dependencies:
-  - { role: 'common' }
-  - { role: 'php' }
-  - { role: 'icinga', when: icingaConfig is defined }

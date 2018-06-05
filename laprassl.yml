@@ -1,7 +1,0 @@
----
-- name: assign laprassl role
-  hosts: laprassl
-  remote_user: root
-
-  roles:
-  - laprassl
